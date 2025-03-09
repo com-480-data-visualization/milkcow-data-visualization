@@ -1,10 +1,10 @@
 # Project of Data Visualization (COM-480)
 
-| Student's name | SCIPER |
-| -------------- | ------ |
-| | |
-| | |
-| | |
+| Student's name     | SCIPER |
+| ------------------ | ------ |
+| Octave Charrin     | 404884 |
+| Jules Peyrat       | 289969 |
+| Gabriele Stentella | 404913 |
 
 [Milestone 1](#milestone-1) • [Milestone 2](#milestone-2) • [Milestone 3](#milestone-3)
 
@@ -18,6 +18,8 @@ Please, fill the following sections about your project.
 *(max. 2000 characters per section)*
 
 ### Dataset
+
+[Link to the chosen dataset](https://github.com/rfordatascience/tidytuesday/tree/main/data/2019/2019-01-29)
 
 > Find a dataset (or multiple) that you will explore. Assess the quality of the data it contains and how much preprocessing / data-cleaning it will require before tackling visualization. We recommend using a standard dataset as this course is not about scraping nor data processing.
 >
