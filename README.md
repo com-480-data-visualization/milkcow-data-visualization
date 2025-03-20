@@ -70,12 +70,17 @@ We aim to provide answers about the following aspects:
 > Pre-processing of the data set you chose
 > - Show some basic statistics and get insights about the data
 
+A introductory exploration of the dataset is provided in this [notebook](milestone_1.ipynb).
+Each cell shows a specific aspect of the data through a table or a graph, summarizing the basic statistics that one could access when encountering the dataset for the first time. We also tried to answer basic questions such as "which are the top 10 states in milk production".
+
 ### Related work
 
 > - What others have already done with the data?
 > - Why is your approach original?
 > - What source of inspiration do you take? Visualizations that you found on other websites or magazines (might be unrelated to your data).
 > - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.
+
+
 
 ## Milestone 2 (18th April, 5pm)
 
