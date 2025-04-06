@@ -103,12 +103,45 @@ We will take inspiration from these recent articles [here](https://www.agricultu
 
 **10% of the final grade**
 
-The crux of our project would consist in two major points:
-1) An interactive map where the user gets to choose in which state they want to invest (`state_milk_production` data series). When they are happy with their yearly investment choices, they click a button and navigate to the next year. 
-2) When reaching next year, a yearly report will be given to the user. We will use the `milkcow_facts` data series to give a description of how different economical factors changed over one year (pricing, feeding costs, cow prices). This will somewhat give a causal explanation of what happened over one year to the user, to help him understand why their investments were wise/poor.
+> Project Goal: Visualizing the U.S. Dairy Industry Through an Interactive Game
 
-Other data series (`clean_cheese` and `milk_product_facts`) can easily be integrated into our interactive game. We can have multiple tabs (in parallel wrt to the American state map) where the user also has the possibility to invest in dairy products directly, instead of investing in milk producers.
+### Introduction
+This project aims to develop an interactive data visualization that explores the evolving trends in the U.S. dairy industry. Utilizing the USDA dataset, the visualization will focus on how milk production, consumer preferences, and economic factors have changed over time. Instead of a traditional static visualization, we will create an engaging "minigame" that allows users to actively participate in and learn about the dynamics of the dairy market. The core idea is to make the data accessible and interesting, particularly for a general audience.
+The project will allow users to understand the economic factors that influence milk production and consumption, and how those factors have changed over time. The interactive game will allow users to make investment decisions based on historical data, and then see the outcomes of those decisions.
 
+### Project overview
+The visualization will be structured as an interactive game where users start with a hypothetical budget in the early 1970s and make investment decisions in different states' milk production and various dairy products. The game will progress year by year, with users receiving feedback on their investment performance based on actual market data. This will somewhat give a causal explanation of what happened over one year to the user, to help him understand why their investments were wise/poor.
+The game will incorporate several key data series from the dataset:
+- `state_milk_production`: Users will invest in milk production in different states, observing how production levels and regional shifts affect their returns.
+- `milkcow_facts`: Economic factors such as feed costs, cow prices, and overall milk production will influence the profitability of investments.
+- `fluid_milk_sales` & `milk_product_facts`: Users can also invest in different types of milk and dairy products, experiencing how consumer preferences and market demand impact their investments.
+- `clean_cheese`: Cheese consumption trends will be integrated, allowing users to explore the growth in cheese demand and its effect on the market.
+
+### Tools and Required Lectures
+The following tools and lectures from the course syllabus will be essential for this project:
+- HTML, CSS, DOM (1.1, 1.2): For structuring the web page, styling the visualization, and manipulating elements dynamically.
+- ECMA 2015+ (JavaScript) (1.3): For implementing the game logic, handling user interactions, and updating the visualization in real-time.
+- D3.js (1.4): For creating the interactive map, charts, and other data-driven visualizations. D3 will be crucial for the dynamic elements of the game.
+- Visualization Fundamentals (2.1-2.5): Understanding data types, interaction techniques, perceptual principles, and design guidelines will be critical for creating an effective and engaging visualization.
+- Maps (3.1): To create an interactive map of the US.
+- Tabular Data (3.4): For handling the structured data from the CSV files and performing calculations for the game logic.
+
+### Project Breakdown
+The project can be broken down into the following independent pieces:
+#### Minimal Viable Product
+The MVP will focus on the core game loop and the most essential interactive elements:
+1. Interactive U.S. Map: Implement a basic interactive map using D3.js, allowing users to select states.
+2. Basic Investment Mechanism: Allow users to allocate a portion of their budget to a selected state.
+3. Yearly Progression: Mechanism to advance the game year by year.
+4. Simple Yearly Report: Display a simplified report showing the user's investment return for the year, with the key economic indicators.
+#### Enhancement Ideas
+The following features could enhance the visualization but are not critical for the core functionality:
+1. Advanced Economic Modeling: Incorporate more complex economic models to simulate the impact of various factors on milk production and prices.
+2. Multiple Investment Options: Allow users to invest in different dairy products (cheese, fluid milk, etc.) in addition to state milk production.
+3. Historical Events: Integrate significant historical events (e.g., changes in government regulations, economic crises) that affected the dairy industry.
+4. Enhanced Visualizations: Add more sophisticated visualizations, such as animated transitions, interactive tooltips, and detailed charts, to provide deeper insights.
+5. User Profiles and Leaderboards: Allow users to save their game progress and compare their performance with others.
+6. Sound Effects: Add sound effects to enhance user engagement.
 
 ## Milestone 3 (30th May, 5pm)
 
@@ -119,4 +152,3 @@ Other data series (`clean_cheese` and `milk_product_facts`) can easily be integr
 
 - < 24h: 80% of the grade for the milestone
 - < 48h: 70% of the grade for the milestone
-
