@@ -21,13 +21,13 @@ const nextYearButton = document.getElementById('next-year-btn');
 const investmentFeedback = document.getElementById('investment-feedback');
 const investmentsList = document.getElementById('investments-list');
 const currentYearEl = document.getElementById('current-year');
+const capitalEl = document.getElementById('capital');
 
 ///////////////////////////////////////////////////////
 // Initialize script
 ///////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Document is fully loaded and parsed');
-
+    //console.log('Document is fully loaded and parsed');
     displayYear();
     displayBudget();
 });
@@ -212,44 +212,57 @@ function displayYear() {
 
 function displayBudget() {
     budgetEl.textContent = budget.toLocaleString();
+    const capital = budget + computeTotalInvestment(); // Total capital = budget + investments
+    capitalEl.textContent = capital.toLocaleString();
 }
 
-// TODO improve yearly report
 function advanceYear() {
     
-    applyPayoffs();
+    applyPayoffs(); // Apply state payoffs
+    currentYear++; // At last, increase current year counter
 
     // Update UI
     displayInvestments();
     displayBudget();
+    displayYear();
 }
 
-function randomGaussian(mean = 0, stddev = 1) {
-    let u1 = Math.random(); // Random number between 0 and 1
-    let u2 = Math.random(); // Another random number between 0 and 1
-    let z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); // Apply Box-Muller Transform
-    return z0 * stddev + mean; // Scale and shift to match your mean and standard deviation
-}
-
+/**
+ * 
+ * @param {*} state State name (string)
+ * @param {*} year Year (integer)
+ * @returns Payoffs for investments made in milk production for given state and year.
+ */
 function calculateStatePayoffs(state, year) {
-    const investment = investments[state.properties.name] || 0;
-    const payoffs = investment * randomGaussian(1, 0.1); // Use randomGaussian for payoffs
+    const investment = investments[state] || 0; // invested amount
+    if (investment == 0) return 0; // Small optimization
+
+    delta_found = state_milk_production_delta.find(d => d.key === state).values.find(d => d.year === year);
+    if (!delta_found) throw new Error(`No milk production delta found for state ${state} in year ${year}`);
+    
+    //.values.find(d => d.year === year);
+    //console.log("delta found: ", delta_found, " for state: ", state, " year: ", year);
+    const delta_relative = delta_found ? delta_found.delta_relative : 0; // relative delta
+
+    console.log("delta relative: ", delta_relative, " for state: ", state, " year: ", year);
+
+    const payoffs = investment * delta_relative; // Use randomGaussian for payoffs
     return payoffs; // Return calculated payoffs
 }
 
 // TODO make it use dataset data and not random increments
-function applyPayoffs(state, investmentAmount, year) {
-
-    console.log(state_milk_production);
-/*
+function applyPayoffs() {
     us_states.forEach((state) => {
-       
-        
+        const investment = investments[state] || 0; // invested amount
+        const payoffs = calculateStatePayoffs(state, currentYear);
+        investments[state] = investment + payoffs; // Do not give, just add to investment amount
 
-
-
+        if (payoffs != 0) {
+            console.log(`Payoff for ${state}: $${payoffs.toLocaleString()}`);
+        }
     });
-    
+
+    /*
     state_milk_production.forEach((d) => {
         if (d.state === state.properties.name && d.year === year) {
             console.log(`got ${investmentAmount} for state ${d.state}`)
