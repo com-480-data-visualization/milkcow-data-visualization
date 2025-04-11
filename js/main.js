@@ -21,6 +21,10 @@ const investmentsList = document.getElementById('investments-list');
 
 budgetEl.textContent = budget.toLocaleString(); // Format initial budget display
 
+const investmentColorScale = d3.scaleLinear()
+    .domain([0, 1]) // 0% to 100% of budget
+    .range(["#cbd5e1", "#0000ff"]); // white to blue (Bootstrap blue)
+
 // Load GeoJSON Data
 const geoJsonUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
@@ -34,9 +38,19 @@ d3.json(geoJsonUrl).then(us => {
         .enter().append("path")
         .attr("class", "state")
         .attr("d", path)
+
         // Store state name in data attribute for easy selection later
         .attr("data-state-name", d => d.properties.name)
-        .on("click", handleStateClick);
+
+        // Click-on-state callback
+        .on("click", handleStateClick)
+        
+        // Hover callbacks
+        .on("mouseover", handleStateHover)
+        .on("mousemove", handleTooltipMove)
+        .on("mouseout", hideTooltip)
+
+        ;
 
     console.log("Map loaded successfully.");
 
@@ -45,6 +59,7 @@ d3.json(geoJsonUrl).then(us => {
     selectedStateInfoEl.textContent = "Error loading map data.";
 });
 
+// Callback function when clicking on a state.
 function handleStateClick(event, d) {
     const clickedStateElement = this;
     const stateName = d.properties.name;
@@ -67,7 +82,7 @@ function handleStateClick(event, d) {
         investmentAmountInput.max = budget + (investments[stateName] || 0);
         investmentFeedback.textContent = '';
         investmentPanel.classList.remove('hidden');
-        investmentAmountInput.focus();
+        investmentAmountInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Smoothly scroll into view the input field
 
     } else {
         // Deselecting the current state (clicking it again)
@@ -77,6 +92,25 @@ function handleStateClick(event, d) {
         selectedStateInfoEl.textContent = "None";
         investmentPanel.classList.add('hidden'); // Hide the panel
     }
+}
+
+const stateTooltip = document.getElementById('tooltip');
+
+function handleStateHover(event, d) {
+    stateTooltip.classList.remove('hidden');
+    stateTooltip.innerHTML = `
+        <div class="font-semibold text-sm">${d.properties.name}</div>
+        <div class="text-xs text-gray-600">Invested: $${(investments[d.properties.name] || 0).toLocaleString()}</div>
+    `;
+}
+
+function handleTooltipMove(event) {
+    stateTooltip.style.left = (event.pageX + 20) + "px";
+    stateTooltip.style.top = (event.pageY - 5) + "px";
+}
+
+function hideTooltip() {
+    stateTooltip.classList.add('hidden');
 }
 
 investButton.addEventListener('click', handleInvestment);
@@ -118,7 +152,9 @@ function handleInvestment() {
 
     const statePath = svg.select(`.state[data-state-name="${stateName}"]`);
     if (statePath.node()) {
-         // Add or remove 'invested' class based on whether the investment amount is > 0
+        //const totalInvestments = Object.values(investments).reduce((a, b) => a + b, 0);
+        //const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
+        //statePath.style("fill", investmentColorScale(investmentRatio));
         statePath.classed("invested", investments[stateName] > 0);
     } else {
         console.warn(`Could not find SVG path for state: ${stateName}`);
