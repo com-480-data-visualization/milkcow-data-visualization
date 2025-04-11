@@ -13,7 +13,7 @@ d3.csv("dataset/state_milk_production.csv", function(d) {
         return {
           //region: d.region, drop region as it is useless
           state: d.state,
-          year: parseInt(d.year),
+          year: Math.trunc(parseFloat(d.year)),
           milk_produced: parseFloat(d.milk_produced),
         };
     })
