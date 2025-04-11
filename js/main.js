@@ -4,10 +4,12 @@ const height = 600;
 const projection = d3.geoAlbersUsa().scale(1100).translate([width / 2, height / 2]);
 const path = d3.geoPath().projection(projection);
 
+let currentYear = 1970;
 let selectedStateElement = null; 
 let selectedStateData = null;
 let budget = 100000;
 let investments = {};
+let totalInvestment = 0;
 
 const selectedStateInfoEl = document.getElementById('selected-state-info');
 const budgetEl = document.getElementById('budget');
@@ -15,11 +17,20 @@ const investmentPanel = document.getElementById('investment-panel');
 const investmentLabel = document.getElementById('investment-label');
 const investmentAmountInput = document.getElementById('investment-amount');
 const investButton = document.getElementById('invest-button');
+const nextYearButton = document.getElementById('next-year-btn');
 const investmentFeedback = document.getElementById('investment-feedback');
 const investmentsList = document.getElementById('investments-list');
-// const currentYearEl = document.getElementById('current-year'); // For future use
+const currentYearEl = document.getElementById('current-year');
 
-budgetEl.textContent = budget.toLocaleString(); // Format initial budget display
+///////////////////////////////////////////////////////
+// Initialize script
+///////////////////////////////////////////////////////
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Document is fully loaded and parsed');
+
+    displayYear();
+    displayBudget();
+});
 
 const investmentColorScale = d3.scaleLinear()
     .domain([0, 1]) // 0% to 100% of budget
@@ -96,11 +107,18 @@ function handleStateClick(event, d) {
 
 const stateTooltip = document.getElementById('tooltip');
 
+function computeTotalInvestment() {
+    return Object.values(investments).reduce((a, b) => a + b, 0);
+}
+
 function handleStateHover(event, d) {
     stateTooltip.classList.remove('hidden');
+    const investment = investments[d.properties.name] || 0;
+    const totalInvestment = computeTotalInvestment();
+    const relativeInvestment = totalInvestment == 0 ? 0 : (100 * investment / totalInvestment);
     stateTooltip.innerHTML = `
         <div class="font-semibold text-sm">${d.properties.name}</div>
-        <div class="text-xs text-gray-600">Invested: $${(investments[d.properties.name] || 0).toLocaleString()}</div>
+        <div class="text-xs text-gray-600">Invested: $${investment.toLocaleString()} (${relativeInvestment}%)</div>
     `;
 }
 
@@ -114,6 +132,7 @@ function hideTooltip() {
 }
 
 investButton.addEventListener('click', handleInvestment);
+nextYearButton.addEventListener('click', advanceYear);
 
 function handleInvestment() {
     if (!selectedStateData) return;
@@ -143,8 +162,8 @@ function handleInvestment() {
         delete investments[stateName];
     }
 
-    // Update UI 
-    budgetEl.textContent = budget.toLocaleString();
+    // Update UI
+    displayBudget();
     displayInvestments(); // Update the list display
     showFeedback(`Successfully invested $${amount.toLocaleString()} in ${stateName}.`, false);
 
@@ -152,7 +171,7 @@ function handleInvestment() {
 
     const statePath = svg.select(`.state[data-state-name="${stateName}"]`);
     if (statePath.node()) {
-        //const totalInvestments = Object.values(investments).reduce((a, b) => a + b, 0);
+        //const totalInvestments = computeTotalInvestment();
         //const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
         //statePath.style("fill", investmentColorScale(investmentRatio));
         statePath.classed("invested", investments[stateName] > 0);
@@ -187,11 +206,64 @@ function showFeedback(message, isError = false) {
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
 
+function displayYear() {
+    currentYearEl.textContent = currentYear;
+}
+
+function displayBudget() {
+    budgetEl.textContent = budget.toLocaleString();
+}
+
+// TODO improve yearly report
+function advanceYear() {
+    
+    applyPayoffs();
+
+    // Update UI
+    displayInvestments();
+    displayBudget();
+}
+
+function randomGaussian(mean = 0, stddev = 1) {
+    let u1 = Math.random(); // Random number between 0 and 1
+    let u2 = Math.random(); // Another random number between 0 and 1
+    let z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); // Apply Box-Muller Transform
+    return z0 * stddev + mean; // Scale and shift to match your mean and standard deviation
+}
+
+function calculateStatePayoffs(state, year) {
+    const investment = investments[state.properties.name] || 0;
+    const payoffs = investment * randomGaussian(1, 0.1); // Use randomGaussian for payoffs
+    return payoffs; // Return calculated payoffs
+}
+
+// TODO make it use dataset data and not random increments
+function applyPayoffs(state, investmentAmount, year) {
+
+    console.log(state_milk_production);
+/*
+    us_states.forEach((state) => {
+       
+        
+
+
+
+    });
+    
+    state_milk_production.forEach((d) => {
+        if (d.state === state.properties.name && d.year === year) {
+            console.log(`got ${investmentAmount} for state ${d.state}`)
+            d.milk_produced += investmentAmount; // Increment milk production by investment amount
+        }
+    });
+*/
+
+}
 
 // TODO: Future Functions
 /*
 function loadYearData(year) {}
-function calculateInvestmentReturn(state, investmentAmount, year) {}
-function advanceYear() {}
+
+
 */
 
