@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map - Data Visualization Game</title>
+    <title>The Big Snort</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
@@ -12,19 +12,27 @@
     <script src="https://unpkg.com/topojson-client@3"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style_index.css">
+    
+    <!-- Link to favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body class="p-4" style="font-family: 'Quicksand', sans-serif;">
     
     <h1 class="text-2xl font-bold text-center text-gray-700 mb-4">
-        COM-480: Dairy Investment Game
+        🐮 The Big Snort 💸
     </h1>
     <div id="map-container">
+
+        <!-- Mouse tooltip when hovering a state -->
+        <div id="tooltip" class="hidden absolute bg-white text-black px-2 py-1 rounded shadow text-sm pointer-events-none z-50"></div>
+
         <svg id="us-map" width="100%" viewBox="0 0 960 600"></svg>
 
         <div id="game-controls" class="text-gray-700">
-            <div class="mb-4 grid grid-cols-2 gap-x-4">
-                <p>Year: <span id="current-year" class="font-semibold">1970</span></p>
-                <p>Budget: $<span id="budget" class="font-semibold">100000</span></p>
+            <div class="mb-4 grid grid-cols-3 gap-x-4">
+                <p>Year: <span id="current-year" class="font-semibold">%ingame_year%</span></p>
+                <p>Liduidity: $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
+                <p>Capital: $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
                 <p class="col-span-2">Selected: <span id="selected-state-info" class="font-semibold">None</span></p>
             </div>
 
@@ -55,6 +63,7 @@
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/load_datasets.js"></script>
 
 </body>
 </html>

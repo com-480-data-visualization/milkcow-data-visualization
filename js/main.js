@@ -4,10 +4,12 @@ const height = 600;
 const projection = d3.geoAlbersUsa().scale(1100).translate([width / 2, height / 2]);
 const path = d3.geoPath().projection(projection);
 
+let currentYear = 1970;
 let selectedStateElement = null; 
 let selectedStateData = null;
 let budget = 100000;
 let investments = {};
+let totalInvestment = 0;
 
 const selectedStateInfoEl = document.getElementById('selected-state-info');
 const budgetEl = document.getElementById('budget');
@@ -15,11 +17,24 @@ const investmentPanel = document.getElementById('investment-panel');
 const investmentLabel = document.getElementById('investment-label');
 const investmentAmountInput = document.getElementById('investment-amount');
 const investButton = document.getElementById('invest-button');
+const nextYearButton = document.getElementById('next-year-btn');
 const investmentFeedback = document.getElementById('investment-feedback');
 const investmentsList = document.getElementById('investments-list');
-// const currentYearEl = document.getElementById('current-year'); // For future use
+const currentYearEl = document.getElementById('current-year');
+const capitalEl = document.getElementById('capital');
 
-budgetEl.textContent = budget.toLocaleString(); // Format initial budget display
+///////////////////////////////////////////////////////
+// Initialize script
+///////////////////////////////////////////////////////
+document.addEventListener('DOMContentLoaded', function() {
+    //console.log('Document is fully loaded and parsed');
+    displayYear();
+    displayBudget();
+});
+
+const investmentColorScale = d3.scaleLinear()
+    .domain([0, 1]) // 0% to 100% of budget
+    .range(["#cbd5e1", "#0000ff"]); // white to blue (Bootstrap blue)
 
 // Load GeoJSON Data
 const geoJsonUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
@@ -34,9 +49,19 @@ d3.json(geoJsonUrl).then(us => {
         .enter().append("path")
         .attr("class", "state")
         .attr("d", path)
+
         // Store state name in data attribute for easy selection later
         .attr("data-state-name", d => d.properties.name)
-        .on("click", handleStateClick);
+
+        // Click-on-state callback
+        .on("click", handleStateClick)
+        
+        // Hover callbacks
+        .on("mouseover", handleStateHover)
+        .on("mousemove", handleTooltipMove)
+        .on("mouseout", hideTooltip)
+
+        ;
 
     console.log("Map loaded successfully.");
 
@@ -45,6 +70,7 @@ d3.json(geoJsonUrl).then(us => {
     selectedStateInfoEl.textContent = "Error loading map data.";
 });
 
+// Callback function when clicking on a state.
 function handleStateClick(event, d) {
     const clickedStateElement = this;
     const stateName = d.properties.name;
@@ -67,7 +93,7 @@ function handleStateClick(event, d) {
         investmentAmountInput.max = budget + (investments[stateName] || 0);
         investmentFeedback.textContent = '';
         investmentPanel.classList.remove('hidden');
-        investmentAmountInput.focus();
+        investmentAmountInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Smoothly scroll into view the input field
 
     } else {
         // Deselecting the current state (clicking it again)
@@ -79,7 +105,34 @@ function handleStateClick(event, d) {
     }
 }
 
+const stateTooltip = document.getElementById('tooltip');
+
+function computeTotalInvestment() {
+    return Object.values(investments).reduce((a, b) => a + b, 0);
+}
+
+function handleStateHover(event, d) {
+    stateTooltip.classList.remove('hidden');
+    const investment = investments[d.properties.name] || 0;
+    const totalInvestment = computeTotalInvestment();
+    const relativeInvestment = totalInvestment == 0 ? 0 : (100 * investment / totalInvestment);
+    stateTooltip.innerHTML = `
+        <div class="font-semibold text-sm">${d.properties.name}</div>
+        <div class="text-xs text-gray-600">Invested: $${investment.toLocaleString()} (${relativeInvestment}%)</div>
+    `;
+}
+
+function handleTooltipMove(event) {
+    stateTooltip.style.left = (event.pageX + 20) + "px";
+    stateTooltip.style.top = (event.pageY - 5) + "px";
+}
+
+function hideTooltip() {
+    stateTooltip.classList.add('hidden');
+}
+
 investButton.addEventListener('click', handleInvestment);
+nextYearButton.addEventListener('click', advanceYear);
 
 function handleInvestment() {
     if (!selectedStateData) return;
@@ -109,8 +162,8 @@ function handleInvestment() {
         delete investments[stateName];
     }
 
-    // Update UI 
-    budgetEl.textContent = budget.toLocaleString();
+    // Update UI
+    displayBudget();
     displayInvestments(); // Update the list display
     showFeedback(`Successfully invested $${amount.toLocaleString()} in ${stateName}.`, false);
 
@@ -118,7 +171,9 @@ function handleInvestment() {
 
     const statePath = svg.select(`.state[data-state-name="${stateName}"]`);
     if (statePath.node()) {
-         // Add or remove 'invested' class based on whether the investment amount is > 0
+        //const totalInvestments = computeTotalInvestment();
+        //const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
+        //statePath.style("fill", investmentColorScale(investmentRatio));
         statePath.classed("invested", investments[stateName] > 0);
     } else {
         console.warn(`Could not find SVG path for state: ${stateName}`);
@@ -151,11 +206,77 @@ function showFeedback(message, isError = false) {
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
 
+function displayYear() {
+    currentYearEl.textContent = currentYear;
+}
+
+function displayBudget() {
+    budgetEl.textContent = budget.toLocaleString();
+    const capital = budget + computeTotalInvestment(); // Total capital = budget + investments
+    capitalEl.textContent = capital.toLocaleString();
+}
+
+function advanceYear() {
+    
+    applyPayoffs(); // Apply state payoffs
+    currentYear++; // At last, increase current year counter
+
+    // Update UI
+    displayInvestments();
+    displayBudget();
+    displayYear();
+}
+
+/**
+ * 
+ * @param {*} state State name (string)
+ * @param {*} year Year (integer)
+ * @returns Payoffs for investments made in milk production for given state and year.
+ */
+function calculateStatePayoffs(state, year) {
+    const investment = investments[state] || 0; // invested amount
+    if (investment == 0) return 0; // Small optimization
+
+    delta_found = state_milk_production_delta.find(d => d.key === state).values.find(d => d.year === year);
+    if (!delta_found) throw new Error(`No milk production delta found for state ${state} in year ${year}`);
+    
+    //.values.find(d => d.year === year);
+    //console.log("delta found: ", delta_found, " for state: ", state, " year: ", year);
+    const delta_relative = delta_found ? delta_found.delta_relative : 0; // relative delta
+
+    console.log("delta relative: ", delta_relative, " for state: ", state, " year: ", year);
+
+    const payoffs = investment * delta_relative; // Use randomGaussian for payoffs
+    return payoffs; // Return calculated payoffs
+}
+
+// TODO make it use dataset data and not random increments
+function applyPayoffs() {
+    us_states.forEach((state) => {
+        const investment = investments[state] || 0; // invested amount
+        const payoffs = calculateStatePayoffs(state, currentYear);
+        investments[state] = investment + payoffs; // Do not give, just add to investment amount
+
+        if (payoffs != 0) {
+            console.log(`Payoff for ${state}: $${payoffs.toLocaleString()}`);
+        }
+    });
+
+    /*
+    state_milk_production.forEach((d) => {
+        if (d.state === state.properties.name && d.year === year) {
+            console.log(`got ${investmentAmount} for state ${d.state}`)
+            d.milk_produced += investmentAmount; // Increment milk production by investment amount
+        }
+    });
+*/
+
+}
 
 // TODO: Future Functions
 /*
 function loadYearData(year) {}
-function calculateInvestmentReturn(state, investmentAmount, year) {}
-function advanceYear() {}
+
+
 */
 
