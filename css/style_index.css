@@ -1,17 +1,59 @@
 /* Base body style to prevent scroll when modal is open */
+body {
+    position: relative;
+    font-family: 'Quicksand';
+    overflow-x: hidden;
+    background-color: #F9F7F5  ;
+}
+
 body.modal-open {
     overflow: hidden;
 }
 
 /* Map Styles */
-.state { fill: #cbd5e1; stroke: #ffffff; stroke-width: 0.5px; transition: fill 0.3s ease; }
-.state:hover { fill: #94a3b8; cursor: pointer; }
-.state.invested { fill: #4ade80; }
+/* .state { fill: #e1dbd0  ; stroke: #ffffff; stroke-width: 0.5px; transition: fill 0.3s ease; }
+.state:hover { fill: #F7D08A; cursor: pointer; }
+.state.invested { fill: #5099dd; }
+.state.invested:hover { fill: #F7D08A; stroke: #ffffff; stroke-width: 0.5px; }
 .state.selected { fill: #3b82f6; stroke: #1e3a8a; stroke-width: 1.5px; }
-.state.selected:hover { fill: #2563eb; }
+.state.selected:hover { fill: #F7D08A; stroke: #ffffff; stroke-width: 0.5px;} */
+
+.state { 
+    fill: #E1DBD0;  /* Milk Cream for base state */
+    stroke: #ffffff; 
+    stroke-width: 0.5px; 
+    transition: fill 0.3s ease; 
+}
+
+.state:hover { 
+    fill: #F2B069; /* Golden Yellow for hover effect */
+    cursor: pointer; 
+}
+
+.state.invested { 
+    fill: #52B11B; /* Dairy Blue for invested state */
+}
+
+.state.invested:hover { 
+    fill: #F0A656;  /* Golden Yellow when hovering over invested state */
+    stroke: #ffffff; 
+    stroke-width: 0.5px; 
+}
+
+.state.selected { 
+    fill: #ED9231; /* Cheese Yellow for selected state */
+    stroke: #f18900; 
+    stroke-width: 1.5px; 
+}
+
+.state.selected:hover { 
+    fill: #F0A656; /* Golden Yellow on hover of selected state */
+    stroke: #ffffff; 
+    stroke-width: 0.5px;
+}
 
 /* Layout Styles */
-#map-container { max-width: 960px; margin: auto; border: 1px solid #e2e8f0; border-radius: 0.5rem; overflow: hidden; background-color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+#map-container { max-width: 960px; margin: auto; border: 1px solid #F9F7F5; border-radius: 0.5rem; overflow: hidden; background-color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
 #game-controls { padding: 1rem; background-color: #f1f5f9; border-top: 1px solid #e2e8f0; border-radius: 0 0 0.5rem 0.5rem; }
 
 /* Input/Button Styles */
@@ -19,8 +61,30 @@ body.modal-open {
 .action-button { padding: 0.5rem 1rem; color: white; border: none; border-radius: 0.25rem; cursor: pointer; transition: background-color 0.3s ease; }
 .action-button:hover { filter: brightness(110%); }
 .action-button:disabled { background-color: #94a3b8; cursor: not-allowed; filter: brightness(100%); }
-#invest-button { background-color: #2563eb; }
-#next-year-btn { background-color: #16a34a; margin-top: 1rem; }
+
+#invest-button { 
+    background-color: #3E8914; /* Dairy Blue for a calm, stable action */
+    color: #ffffff; /* White text for contrast */
+    border: none; /* Removing border for cleaner look */
+    padding: 0.8rem 1.6rem; /* Slightly larger padding for better clickability */
+    border-radius: 4px; /* Rounded corners for a softer look */
+    font-size: 1rem; /* Adjusting font size */
+    cursor: pointer; /* Pointer cursor for clickability */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+#next-year-btn { 
+    background-color: #E17E14; /* Cheese Yellow for selected/next year action */
+    color: #ffffff; /* White text for contrast */
+    border: none; /* Removing border for cleaner look */
+    padding: 0.8rem 1.6rem; /* Padding for better clickability */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 1rem; /* Font size consistency */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+    margin-top: 1rem; /* Maintain existing margin-top */
+}
+
 #dismiss-report-btn { background-color: #64748b; margin-top: 1rem; }
 
 /* Feedback & Lists */
