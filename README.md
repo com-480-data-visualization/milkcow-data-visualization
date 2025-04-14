@@ -136,6 +136,7 @@ The MVP will focus on the core game loop and the most essential interactive elem
 2. Basic Investment Mechanism: Allow users to allocate a portion of their budget to a selected state.
 3. Yearly Progression: Mechanism to advance the game year by year.
 4. Simple Yearly Report: Display a simplified report showing the user's investment return for the year, with the key economic indicators.
+
 #### Enhancement Ideas
 The following features could enhance the visualization but are not critical for the core functionality:
 1. Advanced Economic Modeling: Incorporate more complex economic models to simulate the impact of various factors on milk production and prices.
@@ -144,6 +145,27 @@ The following features could enhance the visualization but are not critical for 
 4. Enhanced Visualizations: Add more sophisticated visualizations, such as animated transitions, interactive tooltips, and detailed charts, to provide deeper insights.
 5. User Profiles and Leaderboards: Allow users to save their game progress and compare their performance with others.
 6. Sound Effects: Add sound effects to enhance user engagement.
+
+#### Pictures and Sketches
+We provide below some images of the current state of the website, along with design sketches illustrating future functionalities.
+
+For the website’s visual design, we chose a clean layout featuring simple shapes, a milk-themed color palette, and a font that reflects the identity of dairy products. Additionally, the website generates a procedurally created cow-pattern background to add a playful visual touch and enhance the impact of the content.
+
+Below are screenshots of the current main page, which includes an interactive map of the United States. This map enables users to invest in different states and manage their capital over time:
+
+![Main page](./images/home.png)
+![Investment page](./images/investment.png)
+
+In addition to this functional prototype, we plan to include more insightful data on the evolution of the dairy market. This information will help investors make informed decisions about future trends. The upcoming visualizations will be structured in two tiers:
+
+- Quickly accessible summary charts
+- Detailed visualizations, accessible via the "info" button
+
+![Investor's panel](./images/sketch1.png)
+
+For time-series data, we will implement a time cursor that allows users to dynamically explore different time frames. This interactive feature will make the data more accessible and simplify the decision-making process.
+
+![Detailed time data](./images/sketch2.png)
 
 ## Milestone 3 (30th May, 5pm)
 

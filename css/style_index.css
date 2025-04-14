@@ -21,7 +21,6 @@ canvas {
 /* Map Styles */
 .state {
     fill: #E1DBD0;
-    /* Milk Cream for base state */
     stroke: #ffffff;
     stroke-width: 0.5px;
     opacity: 1;
@@ -30,32 +29,27 @@ canvas {
 
 .state:hover {
     fill: #F2B069;
-    /* Golden Yellow for hover effect */
     cursor: pointer;
 }
 
 .state.invested {
     fill: #52B11B;
-    /* Dairy Blue for invested state */
 }
 
 .state.invested:hover {
     fill: #F0A656;
-    /* Golden Yellow when hovering over invested state */
     stroke: #ffffff;
     stroke-width: 0.5px;
 }
 
 .state.selected {
     fill: #ED9231;
-    /* Cheese Yellow for selected state */
     stroke: #f18900;
     stroke-width: 1.5px;
 }
 
 .state.selected:hover {
     fill: #F0A656;
-    /* Golden Yellow on hover of selected state */
     stroke: #ffffff;
     stroke-width: 0.5px;
 }
@@ -109,42 +103,25 @@ canvas {
 
 #invest-button {
     background-color: #3E8914;
-    /* Dairy Blue for a calm, stable action */
     color: #ffffff;
-    /* White text for contrast */
     border: none;
-    /* Removing border for cleaner look */
     padding: 0.8rem 1.6rem;
-    /* Slightly larger padding for better clickability */
     border-radius: 4px;
-    /* Rounded corners for a softer look */
     font-size: 1rem;
-    /* Adjusting font size */
     cursor: pointer;
-    /* Pointer cursor for clickability */
     transition: background-color 0.3s ease;
-    /* Smooth transition on hover */
 }
 
 #next-year-btn {
     background-color: #E17E14;
-    /* Cheese Yellow for selected/next year action */
     color: #ffffff;
-    /* White text for contrast */
     border: none;
-    /* Removing border for cleaner look */
     padding: 0.8rem 1.6rem;
-    /* Padding for better clickability */
     border-radius: 4px;
-    /* Rounded corners */
     font-size: 1rem;
-    /* Font size consistency */
     cursor: pointer;
-    /* Pointer cursor */
     transition: background-color 0.3s ease;
-    /* Smooth transition on hover */
     margin-top: 1rem;
-    /* Maintain existing margin-top */
 }
 
 #dismiss-report-btn {

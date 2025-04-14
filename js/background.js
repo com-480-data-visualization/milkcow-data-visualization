@@ -4,9 +4,6 @@ const ctx = canvas.getContext('2d');
 let canvas_width = canvas.width = window.innerWidth;
 let canvas_height = canvas.height = window.innerHeight;
 
-const threshold = 0.1;
-const numGauss = 50;
-
 function gaussian2D(x, y, cx, cy, sigma) {
     const dx = x - cx;
     const dy = y - cy;
@@ -33,8 +30,6 @@ function createGaussianKernel(sigma) {
     }
     return mat;
 }
-
-const gaussians = [20, 30, 40, 50, 60, 70, 80, 90, 100].map(createGaussianKernel)
 
 function simulateGravity(particles, steps, dt = 1e-7, G = 1e-7, radius_scale = 1.0, margin = 10) {
     for (let step = 0; step < steps; step++) {
@@ -151,18 +146,17 @@ function initKernels(n) {
     return kernels;
 }
 
-const kernels = initKernels(numGauss)
 
 function drawSumOfGaussians() {
     const sumBuffer = new Float32Array(canvas_width * canvas_height);
-
+    
     for (const kernel of kernels) {
         const maxRadius = 4 * kernel.sigma;
         const startX = Math.max(0, kernel.x - maxRadius);
         const endX = Math.min(canvas_width, kernel.x + maxRadius);
         const startY = Math.max(0, kernel.y - maxRadius);
         const endY = Math.min(canvas_height, kernel.y + maxRadius);
-
+        
         for (let y = startY; y < endY; y++) {
             for (let x = startX; x < endX; x++) {
                 const kx = Math.floor(x - kernel.x + maxRadius);
@@ -172,7 +166,7 @@ function drawSumOfGaussians() {
             }
         }
     }
-
+    
     const imageData = ctx.createImageData(canvas_width, canvas_height);
     const data = imageData.data;
 
@@ -180,7 +174,7 @@ function drawSumOfGaussians() {
         const value = sumBuffer[i];
         const index = i * 4;
         const alpha = Math.min(255, (value - threshold) / (1 - threshold) * 255);
-
+        
         if (value > threshold) {
             data[index] = 0;
             data[index + 1] = 0;
@@ -192,6 +186,11 @@ function drawSumOfGaussians() {
     }
     ctx.putImageData(imageData, 0, 0);
 }
+
+const threshold = 0.1;
+const numGauss = 50;
+const gaussians = [20, 30, 40, 50, 60, 70, 80, 90, 100].map(createGaussianKernel)
+const kernels = initKernels(numGauss)
 
 drawSumOfGaussians();
 
