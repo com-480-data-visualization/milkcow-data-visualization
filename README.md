@@ -105,6 +105,8 @@ We will take inspiration from these recent articles [here](https://www.agricultu
 
 > Project Goal: Visualizing the U.S. Dairy Industry Through an Interactive Game
 
+[Link to the website's Homepage](https://com-480-data-visualization.github.io/milkcow-data-visualization/)
+
 ### Introduction
 This project aims to develop an interactive data visualization that explores the evolving trends in the U.S. dairy industry. Utilizing the USDA dataset, the visualization will focus on how milk production, consumer preferences, and economic factors have changed over time. Instead of a traditional static visualization, we will create an engaging "minigame" that allows users to actively participate in and learn about the dynamics of the dairy market. The core idea is to make the data accessible and interesting, particularly for a general audience.
 The project will allow users to understand the economic factors that influence milk production and consumption, and how those factors have changed over time. The interactive game will allow users to make investment decisions based on historical data, and then see the outcomes of those decisions.
