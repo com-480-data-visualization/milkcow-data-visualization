@@ -1,8 +1,13 @@
 const canvas = document.getElementById('background-canvas');
 const ctx = canvas.getContext('2d');
 
-let canvas_width = canvas.width = window.innerWidth;
-let canvas_height = canvas.height = window.innerHeight;
+function range(start, stop, step = 1) {
+    const result = [];
+    for (let i = start; i < stop; i += step) {
+        result.push(i);
+    }
+    return result;
+}
 
 function gaussian2D(x, y, cx, cy, sigma) {
     const dx = x - cx;
@@ -31,7 +36,7 @@ function createGaussianKernel(sigma) {
     return mat;
 }
 
-function simulateGravity(particles, steps, dt = 1e-7, G = 1e-7, radius_scale = 1.0, margin = 10) {
+function simulateGravity(particles, steps, dt = 1e-7, G = 1e-7, radius_scale = 1.0, margin = Math.floor(geo_mean / (scale))) {
     for (let step = 0; step < steps; step++) {
         const accelerations = particles.map(() => ({ ax: 0, ay: 0 }));
 
@@ -125,13 +130,15 @@ function simulateGravity(particles, steps, dt = 1e-7, G = 1e-7, radius_scale = 1
     return particles;
 }
 
-function initKernels(n) {
+function initKernels(n, min_size, steps) {
+    half_size = Math.floor(min_size / 2)
+
     const kernels = [];
     for (let i = 0; i < n; i++) {
         kernels.push({
             x: Math.floor(Math.random() * canvas_width),
             y: Math.floor(Math.random() * canvas_height),
-            sigma: Math.ceil(Math.random() * 2) * 10 + 20,
+            sigma: Math.ceil(Math.random() * steps) * half_size + min_size,
             matrix: 0,
             vx: 0,
             vy: 0,
@@ -141,22 +148,21 @@ function initKernels(n) {
     simulateGravity(kernels, 10)
 
     kernels.forEach(function (k) {
-        k.matrix = gaussians[k.sigma / 10 - 2]
+        k.matrix = gaussians[k.sigma / half_size - 2]
     })
     return kernels;
 }
 
-
 function drawSumOfGaussians() {
     const sumBuffer = new Float32Array(canvas_width * canvas_height);
-    
+
     for (const kernel of kernels) {
         const maxRadius = 4 * kernel.sigma;
         const startX = Math.max(0, kernel.x - maxRadius);
         const endX = Math.min(canvas_width, kernel.x + maxRadius);
         const startY = Math.max(0, kernel.y - maxRadius);
         const endY = Math.min(canvas_height, kernel.y + maxRadius);
-        
+
         for (let y = startY; y < endY; y++) {
             for (let x = startX; x < endX; x++) {
                 const kx = Math.floor(x - kernel.x + maxRadius);
@@ -166,7 +172,7 @@ function drawSumOfGaussians() {
             }
         }
     }
-    
+
     const imageData = ctx.createImageData(canvas_width, canvas_height);
     const data = imageData.data;
 
@@ -174,7 +180,7 @@ function drawSumOfGaussians() {
         const value = sumBuffer[i];
         const index = i * 4;
         const alpha = Math.min(255, (value - threshold) / (1 - threshold) * 255);
-        
+
         if (value > threshold) {
             data[index] = 0;
             data[index + 1] = 0;
@@ -187,14 +193,30 @@ function drawSumOfGaussians() {
     ctx.putImageData(imageData, 0, 0);
 }
 
+let canvas_width = canvas.width = window.screen.width;
+let canvas_height = canvas.height = window.screen.height;
+
+const geo_mean = Math.floor(Math.sqrt(canvas_height * canvas_width))
+const scale = 55;
+
 const threshold = 0.1;
-const numGauss = 50;
-const gaussians = [20, 30, 40, 50, 60, 70, 80, 90, 100].map(createGaussianKernel)
-const kernels = initKernels(numGauss)
+const numGauss = Math.floor(geo_mean / 26);
+const steps = 2;
+let min_size = Math.floor(geo_mean / scale)
+min_size = min_size % 2 == 0 ? min_size : min_size + 1;
+
+const r = range(min_size, min_size + steps * min_size / 2 + 1, min_size / 2)
+const gaussians = r.map(createGaussianKernel)
+const kernels = initKernels(numGauss, min_size, steps)
+
+canvas_width = canvas.width = window.innerWidth;
+canvas_height = canvas.height = window.innerHeight;
 
 drawSumOfGaussians();
 
 window.addEventListener('resize', () => {
     canvas_width = canvas.width = window.innerWidth;
     canvas_height = canvas.height = window.innerHeight;
+
+    drawSumOfGaussians();
 });
