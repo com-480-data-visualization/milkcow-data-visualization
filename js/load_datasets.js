@@ -50,3 +50,30 @@ d3.csv("dataset/state_milk_production.csv", function(d) {
     .catch(function(error) {
         console.error("Error loading state milk production:", error);
     });
+
+///////////////////////////////////////////////////////////
+// Milk products facts dataset loading and preparation
+///////////////////////////////////////////////////////////
+
+milk_products_facts = [];
+milk_products_columns = [];
+
+d3.csv("dataset/milk_products_facts.csv", function(d) {
+    // Parse all columns as floats except year
+    let parsed = { year: +d.year };
+    for (let key in d) {
+        if (key !== 'year') parsed[key] = +d[key];
+    }
+    return parsed;
+}).then(function(data) {
+    milk_products_facts = data;
+    // Get product columns (excluding year)
+    if (data.length > 0) {
+        milk_products_columns = Object.keys(data[0]).filter(k => k !== 'year');
+    }
+    console.log("Milk products facts loaded:", milk_products_facts);
+    // Optionally, trigger UI update if needed
+    if (typeof populateProductSelect === 'function') populateProductSelect();
+}).catch(function(error) {
+    console.error("Error loading milk products facts:", error);
+});
