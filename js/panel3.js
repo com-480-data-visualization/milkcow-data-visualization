@@ -27,6 +27,78 @@ document.addEventListener('DOMContentLoaded', function() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Function to handle the info button click
+    function handleInfoClick(event) {
+        const placeholder = event.target.closest('.mini-graph-placeholder, .large-graph-placeholder');
+        if (!placeholder) return;
+
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = 0;
+        overlay.style.left = 0;
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        overlay.style.zIndex = 999;
+        document.body.appendChild(overlay);
+
+        // Store original styles
+        placeholder.dataset.originalPosition = placeholder.style.position;
+        placeholder.dataset.originalTop = placeholder.style.top;
+        placeholder.dataset.originalLeft = placeholder.style.left;
+        placeholder.dataset.originalWidth = placeholder.style.width;
+        placeholder.dataset.originalHeight = placeholder.style.height;
+        placeholder.dataset.originalZIndex = placeholder.style.zIndex;
+
+        // Apply popup styles
+        placeholder.style.position = 'fixed';
+        placeholder.style.top = '50%';
+        placeholder.style.left = '50%';
+        placeholder.style.transform = 'translate(-50%, -50%)';
+        placeholder.style.width = '80%';
+        placeholder.style.height = '80%';
+        placeholder.style.zIndex = 1000;
+        placeholder.style.backgroundColor = 'white'; // Or match original background
+        placeholder.style.padding = '20px';
+        placeholder.style.boxSizing = 'border-box';
+        placeholder.style.overflow = 'auto'; // In case content is larger than popup
+
+        // Create close button
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'X';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.zIndex = 1001;
+        placeholder.appendChild(closeButton);
+
+        // Close button event listener
+        closeButton.addEventListener('click', function() {
+            // Restore original styles
+            placeholder.style.position = placeholder.dataset.originalPosition;
+            placeholder.style.top = placeholder.dataset.originalTop;
+            placeholder.style.left = placeholder.dataset.originalLeft;
+            placeholder.style.width = placeholder.dataset.originalWidth;
+            placeholder.style.height = placeholder.dataset.originalHeight;
+            placeholder.style.zIndex = placeholder.dataset.originalZIndex;
+            placeholder.style.transform = ''; // Remove transform
+            placeholder.style.backgroundColor = ''; // Remove added background
+            placeholder.style.padding = ''; // Remove added padding
+            placeholder.style.boxSizing = ''; // Remove added box-sizing
+            placeholder.style.overflow = ''; // Remove added overflow
+            closeButton.remove();
+            overlay.remove();
+        });
+    }
+
+    // Add event listeners to all info buttons within the panel
+    const infoButtons = document.querySelectorAll('.investment-visualizations .info-button'); // Assuming 'info-button' class is used for info buttons
+    infoButtons.forEach(button => {
+        button.addEventListener('click', handleInfoClick);
+    });
+
     // X axis: determine the range of years
     const x = d3.scaleLinear()
         .domain(d3.extent(data, d => d.year))
