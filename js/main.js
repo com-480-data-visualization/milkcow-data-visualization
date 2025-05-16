@@ -251,9 +251,6 @@ function updateBudget() {
 }
 
 function advanceYear() {
-
-    // Compute investment metric
-    computeInvestmentMetric();
     
     applyPayoffs(); // Apply state payoffs
     currentYear++; // At last, increase current year counter

@@ -1,5 +1,5 @@
 function updateInvestmentMetric() {
-    metricValue = computeInvestmentMetric();
+    metricValue = _computeInvestmentMetric();
 
     // Clamp!
     metricValue = Math.min(6, Math.max(0, metricValue));
@@ -48,10 +48,10 @@ function updateInvestmentMetric() {
  * a simple implementation of a metric and way to visualize
  * this simple metric.
  */
-function computeInvestmentMetric() {
+function _computeInvestmentMetric() {
     const div = _diversityPenalty();
     const amt = _amountPenalty();
-    const ent = _entropy();
+    const ent = _entropyBase();
 
     console.log("Diversity penalty: ", div);
     console.log("Amount penalty: ", amt);
@@ -66,7 +66,7 @@ const AMOUNT_PENALTY_FACTOR = 10;
 function _diversityPenalty() {
     // recommend 10-15 states, otherwise penalize
     // square penalty
-    const statesInvested = Object.keys(investments).length;
+    const statesInvested = Object.entries(investments).filter(([_, amount]) => amount > 0).length;
 
     // every 4 too many/less states, lose 1 point
     if (statesInvested < 10) return DIVERSITY_PENALTY_FACTOR * Math.abs(10 - statesInvested);
@@ -101,7 +101,7 @@ function _weights() {
     return weights;
 }
 
-function _entropy() {
+function _entropyBase() {
     const weights = _weights();
 
     console.log("Weights: ", weights);
