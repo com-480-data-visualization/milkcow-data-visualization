@@ -34,7 +34,7 @@ function renderSmallPieChart(containerElement, data) {
     d3.select(containerElement).select("svg").remove(); // Clear previous
 
     if (!data || data.length === 0) {
-        containerElement.innerHTML = "<p class='text-xs text-gray-500 text-center p-2'>No investments to display.</p>";
+        containerElement.innerHTML = "<p class='normal-text text-center p-2'>No investments to display.</p>";
         return;
     }
 
@@ -87,7 +87,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
     legendDiv.innerHTML = "";
 
     if (!data || data.length === 0) {
-        chartDiv.innerHTML = "<p class='text-gray-500 text-center p-4'>No investments to display.</p>";
+        chartDiv.innerHTML = "<p class='normal-text text-center p-4'>No investments to display.</p>";
         legendDiv.innerHTML = "<p class='text-gray-500 text-sm text-center'>Make an investment to see the chart.</p>";
         return;
     }

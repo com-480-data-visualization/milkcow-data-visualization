@@ -200,3 +200,10 @@ canvas {
 .report-content .return-neutral {
     color: #4b5563;
 }
+
+.normal-text {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    color: #4b5563; /* Tailwind's gray-600 */
+    line-height: 1.5;
+}

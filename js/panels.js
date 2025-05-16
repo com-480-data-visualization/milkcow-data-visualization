@@ -183,7 +183,7 @@ function displayDetailedMiniGraphContent(graphElement) {
             <div class="flex flex-col lg:flex-row w-full h-full grow overflow-hidden p-2">
                 <div id="interactive-pie-chart-svg-container" class="w-full lg:w-2/3 h-2/3 lg:h-full flex items-center justify-center p-1"></div>
                 <div id="interactive-pie-legend-details-container" class="w-full lg:w-1/3 h-1/3 lg:h-full p-3 bg-gray-50 rounded-md shadow overflow-y-auto flex flex-col justify-center items-center text-center">
-                    ${currentInvestmentData.length === 0 ? "<p class='text-gray-500 text-sm'>No investments yet.</p>" : "<p class='text-gray-500 text-sm'>Hover over or click a slice for details.</p>"}
+                    ${currentInvestmentData.length === 0 ? "<p class='normal-text'>No investments yet.</p>" : "<p class='text-gray-500 text-sm'>Hover over or click a slice for details.</p>"}
                 </div>
             </div>
         `;
