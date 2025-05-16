@@ -142,23 +142,6 @@ canvas {
     margin-top: 0.5rem;
 }
 
-/* Panel Styles (for consistency across sections) */
-.panel {
-    max-width: 960px;
-    margin: 2rem auto; /* Add margin to separate panels */
-    border: 1px solid #F9F7F5;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    padding: 1rem; /* Add padding inside the panel */
-}
-
-.panel h2 {
-    font-size: 1.5rem; /* Consistent title size */
-    margin-bottom: 1rem; /* Space below the title */
-}
-
 /* Yearly Report Modal Styles */
 #yearly-report {
     position: fixed;
@@ -213,40 +196,4 @@ canvas {
 
 .report-content .return-neutral {
     color: #4b5563;
-}
-
-/* Button to New Page */
-#new-page-button {
-    position: fixed; /* Fixed position so it stays in place */
-    right: 20px; /* Distance from the right edge */
-    top: 50%; /* Vertically center it */
-    transform: translateY(-50%); /* Adjust for perfect vertical centering */
-    z-index: 500; /* Ensure it's above other content */
-    padding: 10px 15px;
-    background-color: #3E8914; /* Example background color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-#new-page-button:hover {
-    background-color: #52B11B; /* Darker shade on hover */
-    transform: translateY(-50%) scale(1.05); /* Slightly enlarge on hover */
-}
-
-/* Styles for the new page slide-in effect */
-/* These styles are for the element that will contain the new page content */
-/* and handle the transition */
-
-.new-page-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transform: translateX(100%); /* Start off-screen to the right */
 }

@@ -178,6 +178,9 @@ function handleInvestment() {
     } else {
         console.warn(`Could not find SVG path for state: ${stateName}`);
     }
+
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
 // UI Update Functions
