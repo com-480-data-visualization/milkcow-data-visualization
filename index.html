@@ -202,6 +202,21 @@
                     </div>
                     <div id="product-price-graph"></div>
                 </div>
+                
+                <!-- Cheese Wheel Visualization -->
+                <div id="cheese-wheel-visualization" class="mt-16 pt-8 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4">Cheese Consumption Wheel</h3>
+                    <div class="mb-6 flex flex-wrap items-center gap-4">
+                        <label for="cheese-year-select" class="block font-medium text-gray-700">Select Year:</label>
+                        <select id="cheese-year-select" class="border rounded px-2 py-1 min-w-[120px]">
+                            <!-- Years will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    <div class="flex justify-center">
+                        <div id="cheese-wheel-graph"></div>
+                    </div>
+                    <div id="cheese-legend" class="mt-6 flex flex-wrap justify-center gap-3 pb-4"></div>
+                </div>
             </div>
             </div>
         </div>
@@ -301,6 +316,7 @@
     <script src="js/panels.js"></script>
     <script src="js/gains_chart.js"></script>
     <script src="js/investment_metrics.js"></script>
+    <script src="js/cheese_wheel.js"></script>
 
 </body>
 </html>
