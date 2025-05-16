@@ -3,7 +3,7 @@
 const hiddenOriginalContentMap = new Map();
 
 // Sample Pie Data (globally accessible or passed appropriately)
-const pieData = [
+const staticPieData = [ // Renamed from pieData to avoid confusion, can be removed if no longer needed elsewhere
     { label: "Housing", value: 35, color: "#66c2a5" },
     { label: "Food", value: 20, color: "#fc8d62" },
     { label: "Transport", value: 15, color: "#8da0cb" },
@@ -12,11 +12,34 @@ const pieData = [
     { label: "Other", value: 10, color: "#ffd92f" }
 ];
 
+// --- Helper function to get and transform investment data for pie chart ---
+function getInvestmentPieData() {
+    // Access the global 'investments' object from main.js
+    if (typeof investments === 'undefined' || Object.keys(investments).length === 0) {
+        return []; // Return empty array if no investments or 'investments' is not defined
+    }
+
+    const colors = d3.scaleOrdinal(d3.schemeTableau10); // D3 color scheme
+
+    return Object.entries(investments)
+        .filter(([, amount]) => amount > 0) // Only include states with actual investment
+        .map(([stateName, amount], index) => ({
+            label: stateName,
+            value: amount,
+            color: colors(index) // Assign color based on index
+        }));
+}
+
 
 // --- D3 Pie Chart Rendering Functions ---
 function renderSmallPieChart(containerElement, data) {
     if (typeof d3 === 'undefined') { console.error("D3 library is not loaded."); return; }
     d3.select(containerElement).select("svg").remove(); // Clear previous
+
+    if (!data || data.length === 0) {
+        containerElement.innerHTML = "<p class='text-xs text-gray-500 text-center p-2'>No investments to display.</p>";
+        return;
+    }
 
     const containerRect = containerElement.getBoundingClientRect();
     // Fallback dimensions if containerRect isn't fully ready (e.g. display:none parent)
@@ -66,6 +89,12 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
 
     d3.select(chartDiv).select("svg").remove(); // Clear previous chart
     legendDiv.innerHTML = ""; // Clear previous legend
+
+    if (!data || data.length === 0) {
+        chartDiv.innerHTML = "<p class='text-gray-500 text-center p-4'>No investments to display.</p>";
+        legendDiv.innerHTML = "<p class='text-gray-500 text-sm text-center'>Make an investment to see the chart.</p>";
+        return;
+    }
 
     const chartRect = chartDiv.getBoundingClientRect();
     const width = chartRect.width > 50 ? chartRect.width : 400; // Default width
@@ -147,7 +176,6 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
 
     legendDiv.innerHTML = "<p class='text-gray-500 text-sm text-center'>Hover over or click a slice to see details.</p>";
 }
-
 
 // --- Core Panel Enlargement Logic ---
 function enlargeGraph(graphElement) {
@@ -334,18 +362,19 @@ function displayDetailedMiniGraphContent(graphElement) {
 
 
     if (panelType === "miniGraph1") {
+        const currentInvestmentData = getInvestmentPieData(); // Get live investment data
         contentDiv.innerHTML = `
-            <h4 class="text-xl font-semibold p-3 text-center shrink-0">Interactive Expense Breakdown</h4>
+            <h4 class="text-xl font-semibold p-3 text-center shrink-0">Investment Portfolio Breakdown</h4>
             <div class="flex flex-col lg:flex-row w-full h-full grow overflow-hidden p-2">
                 <div id="interactive-pie-chart-svg-container" class="w-full lg:w-2/3 h-2/3 lg:h-full flex items-center justify-center p-1"></div>
                 <div id="interactive-pie-legend-details-container" class="w-full lg:w-1/3 h-1/3 lg:h-full p-3 bg-gray-50 rounded-md shadow overflow-y-auto flex flex-col justify-center items-center text-center">
-                    <p class='text-gray-500 text-sm'>Hover over or click a slice for details.</p>
+                    ${currentInvestmentData.length === 0 ? "<p class='text-gray-500 text-sm'>No investments yet.</p>" : "<p class='text-gray-500 text-sm'>Hover over or click a slice for details.</p>"}
                 </div>
             </div>
         `;
         graphElement.appendChild(contentDiv);
         setTimeout(() => { // Ensure DOM is ready for D3
-            renderInteractivePieChart("interactive-pie-chart-svg-container", "interactive-pie-legend-details-container", pieData);
+            renderInteractivePieChart("interactive-pie-chart-svg-container", "interactive-pie-legend-details-container", currentInvestmentData);
         }, 50);
 
     } else if (panelType === "miniGraph2") {
@@ -386,29 +415,34 @@ function initializeMiniGraphPlaceholders() {
     miniGraphPlaceholders.forEach(placeholder => {
         // Try to find the text node to replace it more accurately
         let textNodeToReplace = null;
+        let isMiniGraph1 = false;
         for (const node of placeholder.childNodes) {
             if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().includes("Mini Graph 1 Placeholder")) {
                 textNodeToReplace = node;
+                isMiniGraph1 = true;
                 break;
             }
         }
 
-        if (textNodeToReplace) {
+        if (textNodeToReplace && isMiniGraph1) { // Process only Mini Graph 1 for pie chart
             placeholder.removeChild(textNodeToReplace); // Remove the placeholder text
 
             const pieContainer = document.createElement('div');
-            // Ensure this container allows the SVG to use available space.
-            // Parent (.mini-graph-placeholder) has h-40, flex, items-center, justify-center.
             pieContainer.className = 'small-pie-chart-container w-full h-full flex items-center justify-center';
-            placeholder.insertBefore(pieContainer, placeholder.querySelector('.info-button')); // Insert before the 'i' button
+            placeholder.insertBefore(pieContainer, placeholder.querySelector('.info-button'));
 
-            // Render the small pie chart.
-            // Use a timeout to ensure the container is in the DOM and has dimensions.
-            setTimeout(() => renderSmallPieChart(pieContainer, pieData), 0);
+            const currentInvestmentData = getInvestmentPieData(); // Get live investment data
 
-            // Mark this panel specifically if needed for easier identification later
+            setTimeout(() => renderSmallPieChart(pieContainer, currentInvestmentData), 0);
+
             placeholder.dataset.graphType = 'pieChart';
         }
+        // Note: Logic for Mini Graph 2 (milk ranking) or other placeholders would go here or remain separate
+        // For example, if you had a data-identifier="miniGraph2" on the HTML element:
+        else if (placeholder.dataset.identifier === "miniGraph2" && placeholder.querySelector('.ranking-content')) {
+            // This part is handled by loadAndDisplayMilkRanking, so no changes needed here for MG2
+        }
+
     });
 }
 
