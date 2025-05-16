@@ -338,7 +338,13 @@ function updateBudget() {
 function advanceYear() {
     
     applyPayoffs(); // Apply state payoffs
-    currentYear++; // At last, increase current year counter
+    
+    // Increase year but cap it at 2017
+    if (currentYear < 2017) {
+        currentYear++; // Increase current year counter only if it's less than 2017
+    } else {
+        showFeedback("You've reached the maximum year (2017). Cannot advance further.", true);
+    }
 
     // Update UI
     displayInvestments();
