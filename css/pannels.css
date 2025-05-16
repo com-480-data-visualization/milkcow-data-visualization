@@ -1,0 +1,54 @@
+/* Styles for the modal/popup panel */
+.panel-enlarged {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 80vw !important; /* Adjust width as needed */
+    max-width: 900px; /* Maximum width */
+    height: 75vh !important; /* Adjust height as needed */
+    max-height: 700px; /* Maximum height */
+    background-color: white !important;
+    border: 1px solid #ccc !important;
+    z-index: 1000 !important;
+    padding: 0 !important; /* Padding will be handled by inner content div if needed */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    /* overflow: hidden !important; */ /* Content div will handle overflow */
+}
+
+/* Ensure the content area within the enlarged panel can scroll */
+.panel-enlarged .detailed-content-area {
+    padding: 20px; /* Add padding inside the content area */
+    padding-top: 45px; /* Extra padding at the top for title/close button */
+    overflow-y: auto;
+    flex-grow: 1; /* Allow content to take available space */
+    height: 100%; /* Necessary for some browsers to respect flex-grow with overflow */
+}
+
+/* Styles for the SVG in the enlarged D3 panel */
+.panel-enlarged #capital-evolution-graph {
+    width: calc(100% - 40px) !important; /* Account for padding */
+    height: calc(100% - 80px) !important; /* Account for padding and potential title */
+    margin: 20px auto; /* Center it and give some margin */
+}
+
+/* Styles for the backdrop */
+#modal-backdrop {
+    /* Tailwind classes could also be used: fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-50 z-[999] hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 999; /* Below the panel but above everything else */
+    display: none; /* Hidden by default */
+}
+
+/* Ensure original info buttons are displayed as flex (from Tailwind) */
+.mini-graph-placeholder .info-button,
+.large-graph-placeholder .info-button {
+    /* display: flex; */ /* Already in your HTML classes */
+}
