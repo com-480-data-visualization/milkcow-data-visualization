@@ -193,16 +193,19 @@ function displayDetailedMiniGraphContent(graphElement) {
         }, 50);
 
     } else if (panelType === "miniGraph2") {
-        // ... (keep existing Mini Graph 2 logic) ...
-        contentDiv.innerHTML = `<h4 class="text-xl font-semibold mb-3 p-4 text-center">Detailed View: Graph 2 Analysis</h4>
-                        <div class="px-4 grow flex flex-col justify-center">
-                            <p class="text-sm mb-2">Expanded data points and deeper analysis for various metrics.</p>
-                            <div class="w-full h-64 bg-gray-100 border border-gray-300 flex items-center justify-center text-gray-500">
-                                [Placeholder: More complex interactive chart for Graph 2 would be rendered here]
-                            </div>
-                            <p class="mt-2 text-xs">Further details: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nisl eros, pulvinar facilisis justo mollis, auctor consequat urna.</p>
-                        </div>`;
+        const currentYear = new Date().getFullYear();
+        const currentRankingData = getRankingDataForYear(currentYear);
+        const availableYears = [2023, 2024, 2025]; // Replace with dynamic year fetching if available
+
+        // Clear existing content and prepare for detailed ranking
+        contentDiv.innerHTML = `
+            <div id="detailed-ranking-container" class="w-full h-full"></div>
+        `;
         graphElement.appendChild(contentDiv);
+
+        setTimeout(() => {
+            renderDetailedRanking("detailed-ranking-container", currentRankingData, availableYears, currentYear);
+        }, 50);
     }
 }
 
@@ -254,8 +257,20 @@ function initializeMiniGraphPlaceholders() {
         }
         // Note: Logic for Mini Graph 2 (milk ranking) or other placeholders would go here or remain separate
         // For example, if you had a data-identifier="miniGraph2" on the HTML element:
-        else if (placeholder.dataset.identifier === "miniGraph2" && placeholder.querySelector('.ranking-content')) {
-            // This part is handled by loadAndDisplayMilkRanking, so no changes needed here for MG2
+        else if (placeholder.dataset.identifier === "miniGraph2") { // Check for Mini Graph 2 identifier
+            const currentYear = new Date().getFullYear(); // Or your game's current year
+            const rankingData = getRankingDataForYear(currentYear);
+            
+            // Create a container for the mini ranking if it doesn't exist
+            let miniRankingContainer = placeholder.querySelector('#miniGraph2-content-container');
+            if (!miniRankingContainer) {
+                miniRankingContainer = document.createElement('div');
+                miniRankingContainer.id = 'miniGraph2-content-container';
+                miniRankingContainer.className = 'w-full h-full flex flex-col items-center justify-center p-2'; // Basic styling
+                placeholder.innerHTML = ''; // Clear placeholder text
+                placeholder.appendChild(miniRankingContainer);
+            }
+            renderMiniGraph2(miniRankingContainer.id, rankingData, currentYear);
         }
 
     });
@@ -265,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeMiniGraphPlaceholders();
 
     // Add click event listener to all small panels to enlarge them
-    const panels = document.querySelectorAll('.mini-graph-placeholder');
+    const panels = document.querySelectorAll('.mini-graph-placeholder, .large-graph-placeholder'); // Include large graph placeholder
     panels.forEach(panel => {
         // Remove the info button from the panel
         const infoButton = panel.querySelector('.info-button');

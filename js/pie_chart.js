@@ -88,7 +88,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
 
     if (!data || data.length === 0) {
         chartDiv.innerHTML = "<p class='normal-text text-center p-4'>No investments to display.</p>";
-        legendDiv.innerHTML = "<p class='text-gray-500 text-sm text-center'>Make an investment to see the chart.</p>";
+        legendDiv.innerHTML = "<p class='normal-text text-center'>Make an investment to see the chart.</p>";
         return;
     }
 
