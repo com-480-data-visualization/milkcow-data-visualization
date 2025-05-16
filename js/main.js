@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //console.log('Document is fully loaded and parsed');
     updateYear();
     updateBudget();
+    updateInvestmentMetric();
 });
 
 const investmentColorScale = d3.scaleLinear()
@@ -136,7 +137,16 @@ function hideTooltip() {
 }
 
 investButton.addEventListener('click', handleInvestment);
+investmentAmountInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        handleInvestment();
+        investmentAmountInput.value = '';
+    }
+});
 nextYearButton.addEventListener('click', advanceYear);
+
+const MIN_INVESTMENT = 1000;
 
 function handleInvestment() {
     if (!selectedStateData) return;
@@ -147,6 +157,12 @@ function handleInvestment() {
 
     if (isNaN(amount) || amount < 0) {
         showFeedback("Please enter a valid positive amount.", true);
+        return;
+    }
+
+    if (amount < MIN_INVESTMENT)
+    {
+        showFeedback(`Minimum investment is $${MIN_INVESTMENT.toLocaleString()}.`, true);
         return;
     }
 
@@ -187,7 +203,9 @@ function handleInvestment() {
     document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
+/////////////////////////////////////////////////////////////
 // UI Update Functions
+/////////////////////////////////////////////////////////////
 
 function displayInvestments() {
     investmentsList.innerHTML = '';
@@ -206,12 +224,19 @@ function displayInvestments() {
             investmentsList.appendChild(li);
         }
     });
+
+    // Update investment metric
+    updateInvestmentMetric();
 }
 
 function showFeedback(message, isError = false) {
     investmentFeedback.textContent = message;
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
+
+/////////////////////////////////////////////////////////////
+// GAME MECHANICS IMPLEMENTED HERE
+/////////////////////////////////////////////////////////////
 
 function updateYear() {
     currentYearEl.textContent = currentYear;
@@ -229,9 +254,6 @@ function updateBudget() {
 }
 
 function advanceYear() {
-
-    // Compute investment metric
-    computeInvestmentMetric();
     
     applyPayoffs(); // Apply state payoffs
     currentYear++; // At last, increase current year counter
