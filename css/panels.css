@@ -54,10 +54,12 @@
     max-width: 900px; /* Maximum width */
     height: 75vh !important; /* Adjust height as needed */
     max-height: 700px; /* Maximum height */
-    z-index: 1000 !important;
+    z-index: 10000 !important; /* Ensure this is higher than the backdrop, increased z-index */
     display: flex !important;
     flex-direction: column !important;
     cursor: default !important; /* Ensure the cursor does not change to a pointer */
+    pointer-events: auto !important; /* Ensure panel itself can receive events */
+    background-color: white !important; /* Ensure solid background */
 }
 
 /* Ensure the content area within the enlarged panel can scroll */
@@ -84,6 +86,7 @@
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);
-    z-index: 999; /* Below the panel but above everything else */
+    z-index: 9999 !important; /* Below the panel but above everything else, increased z-index and added !important */
     display: none; /* Hidden by default */
+    /* pointer-events: none; Remove this or set to auto if clicks on backdrop should close modal via JS */
 }

@@ -9,6 +9,26 @@ function enlargeGraph(graphElement) {
     if (graphElement.classList.contains('panel-enlarged')) {
         // --- SHRINK PANEL ---
         graphElement.classList.remove('panel-enlarged');
+        graphElement.style.zIndex = '';
+        graphElement.style.position = '';
+        graphElement.style.left = '';
+        graphElement.style.top = '';
+        graphElement.style.width = '';
+        graphElement.style.height = '';
+        graphElement.style.transform = '';
+        graphElement.style.justifyContent = '';
+        graphElement.style.alignItems = '';
+
+        // Restore to original parent if moved
+        if (graphElement._originalParent) {
+            if (graphElement._originalNextSibling && graphElement._originalNextSibling.parentNode === graphElement._originalParent) {
+                graphElement._originalParent.insertBefore(graphElement, graphElement._originalNextSibling);
+            } else {
+                graphElement._originalParent.appendChild(graphElement);
+            }
+            delete graphElement._originalParent;
+            delete graphElement._originalNextSibling;
+        }
 
         if (graphElement.dataset.panelType === "miniGraph1" || graphElement.dataset.panelType === "miniGraph2") {
             restoreOriginalMiniGraphContent(graphElement);
@@ -44,7 +64,23 @@ function enlargeGraph(graphElement) {
             enlargeGraph(currentlyEnlarged);
         }
 
+        // Move to body to avoid cropping by parent containers
+        if (!graphElement._originalParent) {
+            graphElement._originalParent = graphElement.parentNode;
+            graphElement._originalNextSibling = graphElement.nextSibling;
+            document.body.appendChild(graphElement);
+        }
+
         graphElement.classList.add('panel-enlarged');
+        graphElement.style.zIndex = '10001'; // Ensure enlarged panel is above backdrop
+        graphElement.style.position = 'fixed';
+        graphElement.style.left = '50%';
+        graphElement.style.top = '50%';
+        graphElement.style.width = '80vw';
+        graphElement.style.height = '80vh';
+        graphElement.style.transform = 'translate(-50%, -50%)';
+        graphElement.style.justifyContent = 'center';
+        graphElement.style.alignItems = 'center';
         // Store original display style for the small chart container if it exists
         const smallPieContainer = graphElement.querySelector('.small-pie-chart-container');
         if (smallPieContainer) {
@@ -94,7 +130,7 @@ function getOrCreateBackdrop() {
     if (!backdrop) {
         backdrop = document.createElement('div');
         backdrop.id = 'modal-backdrop';
-        backdrop.className = 'fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 z-[999]';
+        backdrop.className = 'fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 z-[999]'; // Ensure this z-index is lower than the panel
         backdrop.style.display = 'none';
         backdrop.onclick = () => {
             const enlargedPanel = document.querySelector('.panel-enlarged');
@@ -114,7 +150,7 @@ function addCloseButtonToEnlarged(panelElement) {
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '&times;';
     closeButton.className = 'close-enlarged-button absolute top-3 right-3 text-2xl leading-none bg-gray-700 hover:bg-gray-900 text-white rounded-full w-8 h-8 flex items-center justify-center cursor-pointer focus:outline-none';
-    closeButton.style.zIndex = '1005';
+    closeButton.style.zIndex = '1005'; // Ensure this is higher than panel content, and panel itself
     closeButton.setAttribute('aria-label', 'Close dialog');
     closeButton.onclick = function(event) {
         event.stopPropagation();
@@ -307,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.stopPropagation(); // Prevent triggering panel click
                 enlargeGraph(panel); // Shrink the panel
             };
+            closeButton.style.zIndex = '10001'; // Ensure close button is above the enlarged panel
             panel.appendChild(closeButton);
         }
     }

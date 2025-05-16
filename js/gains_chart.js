@@ -214,18 +214,66 @@ function updateProfitHistoryChart() {
                 .attr('fill', d.gain >= 0 ? '#047857' : '#991b1b');
             
             const tooltip = d3.select('#tooltip');
-            tooltip.style('display', 'block')
-                .html(`Year: ${d.year}<br>Gain: ${d.gain.toFixed(1)}%`)
-                .style('left', (event.pageX + 10) + 'px')
-                .style('top', (event.pageY - 10) + 'px');
+            tooltip
+                .classed('hidden', false)       // Remove hidden class from Tailwind
+                .style('position', 'absolute')  // Ensure position is absolute
+                .style('display', 'block')      // Ensure display is block
+                .style('opacity', 1)            // Ensure opacity is 1
+                .style('z-index', '9999')       // Ensure it's on top
+                .html(`Year: ${d.year}<br>Gain: ${d.gain.toFixed(1)}%`);
+        })
+        .on('mousemove', function(event) {
+            const tooltip = d3.select('#tooltip');
+            const gameTabContent = d3.select('#game-tab-content').node();
+
+            if (!gameTabContent) {
+                console.error("#game-tab-content not found for tooltip positioning");
+                return;
+            }
+
+            // Get mouse coordinates relative to the gameTabContent element
+            const [mouseX, mouseY] = d3.pointer(event, gameTabContent);
+
+            let newLeft = mouseX + 15; // Offset from mouse
+            let newTop = mouseY + 15;  // Offset from mouse
+
+            const tooltipNode = tooltip.node();
+            if (tooltipNode) {
+                const tooltipWidth = tooltipNode.offsetWidth;
+                const tooltipHeight = tooltipNode.offsetHeight;
+                
+                const containerWidth = gameTabContent.clientWidth;
+                const containerHeight = gameTabContent.clientHeight;
+
+                // Adjust horizontal position to stay within container boundaries
+                if (newLeft + tooltipWidth > containerWidth) {
+                    newLeft = mouseX - tooltipWidth - 15; // Show on the left of cursor
+                }
+                if (newLeft < 0) {
+                    newLeft = 5; // Small padding from left edge
+                }
+
+                // Adjust vertical position to stay within container boundaries
+                if (newTop + tooltipHeight > containerHeight) {
+                    newTop = mouseY - tooltipHeight - 15; // Show above cursor
+                }
+                if (newTop < 0) {
+                    newTop = 5; // Small padding from top edge
+                }
+            }
+            tooltip.style('left', newLeft + 'px')
+                   .style('top', newTop + 'px');
         })
         .on('mouseout', function(d) {
             d3.select(this)
                 .attr('fill', d => d.gain >= 0 ? '#059669' : '#dc2626');
             
-            d3.select('#tooltip').style('display', 'none');
+            d3.select('#tooltip')
+                .classed('hidden', true)    // Add hidden class back
+                .style('opacity', 0)        // Fade out
+                .style('display', 'none');  // Ensure it's not displayed
         });
 }
 
 // Initialize the chart when the page loads
-document.addEventListener('DOMContentLoaded', initGainsChart); 
+document.addEventListener('DOMContentLoaded', initGainsChart);
