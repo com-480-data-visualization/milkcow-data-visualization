@@ -197,3 +197,33 @@ canvas {
 .report-content .return-neutral {
     color: #4b5563;
 }
+
+/* Event markers and tooltips */
+.event-marker {
+    cursor: pointer;
+    transition: r 0.2s ease, stroke-width 0.2s ease;
+}
+
+.event-marker:hover {
+    r: 8;
+}
+
+.event-line {
+    pointer-events: visibleStroke !important;
+    cursor: pointer;
+    transition: stroke-width 0.2s ease, opacity 0.2s ease;
+}
+
+.event-tooltip {
+    position: absolute;
+    background: white;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    pointer-events: none;
+    z-index: 10;
+    max-width: 250px;
+    font-size: 13px;
+    transition: opacity 0.3s ease;
+}
