@@ -22,9 +22,9 @@ const investmentsList = document.getElementById('investments-list');
 const currentYearEl = document.getElementById('current-year');
 const capitalEl = document.getElementById('capital');
 
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 // Initialize script
-///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     //console.log('Document is fully loaded and parsed');
     updateYear();
