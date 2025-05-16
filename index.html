@@ -29,9 +29,8 @@
     </div>
     <!-- Main content container below tab navigation -->
     <div class="relative w-full max-w-5xl mx-auto">
-        <!-- Game/Map container (default visible) -->
         <div id="game-tab-content" class="tab-content">
-            <div id="map-container">
+            <div class="panel-shape">
                 <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-2">
                     🐮 The Big Snort 💸
                 </h1>
@@ -41,84 +40,258 @@
 
                 <svg id="us-map" width="100%" viewBox="0 0 960 600"></svg>
 
-        <div id="game-controls" class="panel-bgcolor text-gray-700">
-            <div class="mb-4 grid grid-cols-3 gap-x-4">
-                <p>Year: <span id="current-year" class="font-semibold">%ingame_year%</span></p>
-                <p>Liquidity: $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
-                <p>Capital: $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
-                <p class="col-span-2">Selected: <span id="selected-state-info" class="font-semibold">None</span></p>
-            </div>
+                <div id="game-controls" class="panel-bgcolor text-gray-700">
+                    <div class="mb-4 grid grid-cols-3 gap-x-4">
+                        <p>Year: <span id="current-year" class="font-semibold">%ingame_year%</span></p>
+                        <p>Liquidity: $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
+                        <p>Capital: $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
+                        <p class="col-span-2">Selected: <span id="selected-state-info" class="font-semibold">None</span></p>
+                    </div>
 
-            <div id="investment-panel" class="hidden mt-4 p-4 border border-slate-300 rounded bg-white">
-                <label for="investment-amount" id="investment-label" class="block font-medium text-gray-700">%invest_in_state%</label>
-                <div class="flex gap-2 items-center">
-                    <input type="number" id="investment-amount" name="investment-amount" min="0" step="1000" class="w-32">
-                    <button id="invest-button" class="action-button h-10 -mt-[5px]">Invest</button>
-                </div>
-                <p id="investment-feedback" class="text-green-600"></p>
-            </div>
+                    <div id="investment-panel" class="hidden mt-4 p-4 border border-slate-300 rounded bg-white">
+                        <label for="investment-amount" id="investment-label" class="block font-medium text-gray-700">%invest_in_state%</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="number" id="investment-amount" name="investment-amount" min="0" step="1000" class="w-32">
+                            <button id="invest-button" class="action-button h-10 -mt-[5px]">Invest</button>
+                        </div>
+                        <p id="investment-feedback" class="text-green-600"></p>
+                    </div>
 
                     <div id="investments-display" class="mt-4">
                         <h3 class="font-semibold text-gray-700">Current Investments:</h3>
                         <ul id="investments-list" class="text-sm text-gray-600"><li>None</li></ul>
                     </div>
 
-            <button id="next-year-btn" class="action-button w-full">Advance to Next Year</button>
-        </div>
-    </div>
-
-    <!-- Investment Data Visualizations Panel -->
-    <div id="investment-data-viz-panel" class="panel-shape panel-bgcolor mt-8 p-6">
-        <h3 class="font-semibold text-gray-700 mb-6 text-center">Investor's Panel</h3>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="mini-graph-placeholder">
-                Mini Graph 1 Placeholder
+                    <button id="next-year-btn" class="action-button w-full">Advance to Next Year</button>
+                </div>
             </div>
-            <div class="mini-graph-placeholder" data-identifier="miniGraph2">
-                Mini Graph 2 Placeholder
+
+            <!-- Investment Data Visualizations Panel -->
+            <div id="investment-data-viz-panel" class="panel-shape panel-bgcolor mt-8 p-6">
+                <h3 class="font-semibold text-gray-700 mb-6 text-center">Investor's Panel</h3>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="mini-graph-placeholder">
+                        Mini Graph 1 Placeholder
+                    </div>
+                    <div class="mini-graph-placeholder" data-identifier="miniGraph2">
+                        Mini Graph 2 Placeholder
+                    </div>
+                </div>
+                <div>
+                    <div class="large-graph-placeholder">
+                        <!-- D3.js graph will be rendered here by panel3.js -->
+                        <svg id="capital-evolution-graph" width="100%" height="100%"></svg>                
+                    </div>
+                </div>
+            </div>
+
+            <div id="yearly-report">
+                <div class="report-content">
+                    <h2 id="report-year-title">Yearly Report</h2>
+                    <p>Total Investment Return: <span id="report-return" class="font-semibold"></span></p>
+                    <p>Economic Indicators:</p>
+                    <p><em id="report-indicators" class="text-sm"></em></p>
+                    <button id="dismiss-report-btn" class="action-button">Continue</button>
+                </div>
+            </div>
+
+            <div id="gains-chart-panel" class="panel-shape panel-bgcolor mt-8 p-6">
+                <h3 class="font-semibold text-gray-700 mb-6 text-center">Investment Gains Over Time</h3>
+                <div id="gains-chart"></div>
+            </div>
+
+            <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4">
+                <h3 class="font-semibold text-gray-700 mb-2">Investment Score</h3>
+                <div class="relative h-8 rounded-lg flex overflow-visible">
+                    <!-- Grade sections -->
+                    <div class="grade-section flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-l-lg" data-grade="F">F</div>
+                    <div class="grade-section flex-1 bg-orange-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="E">E</div>
+                    <div class="grade-section flex-1 bg-amber-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="D">D</div>
+                    <div class="grade-section flex-1 bg-yellow-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="C">C</div>
+                    <div class="grade-section flex-1 bg-lime-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="B">B</div>
+                    <div class="grade-section flex-1 bg-green-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-r-lg" data-grade="A">A</div>
+                    <!-- Vertical line indicator -->
+                    <div id="metric-slider" class="absolute top-1/2 w-[3.5rem] h-[4rem] transition-all duration-500 -translate-x-1/2 -translate-y-1/2 z-10" style="left: 0%;">
+                        <img src="assets/cow_slider_icon.png" alt="Cow slider" class="w-full h-full">
+                    </div>
+                </div>
+                <p class="text-center mt-2">Current Grade: <span id="current-grade" class="font-semibold">F</span></p>
             </div>
         </div>
-        <div>
-            <div class="large-graph-placeholder">
-                <!-- D3.js graph will be rendered here by panel3.js -->
-                <svg id="capital-evolution-graph" width="100%" height="100%"></svg>                
+
+
+        <!-- Visualization container -->
+        <div id="visualization-tab-content" class="tab-content">
+            <div id="visualization-container" class="panel-shape mx-auto p-6 rounded">
+                <h1 class="text-2xl font-bold text-center text-gray-700 mb-2">
+                    Data Visualizations
+                </h1>
+                <!-- <h2 class="text-xl font-bold text-gray-700 mb-4 text-center">Data Visualizations</h2> -->
+
+                <!-- State selection for visualizations -->
+                <div class="mb-6 flex items-center gap-4">
+                    <label for="visualization-state-select" class="block font-medium text-gray-700">Select State:</label>
+                    <select id="visualization-state-select" class="border rounded px-2 py-1 min-w-[180px]">
+                        <option value="">All States</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="CO">Colorado</option>
+                        <option value="CT">Connecticut</option>
+                        <option value="DE">Delaware</option>
+                        <option value="FL">Florida</option>
+                        <option value="GA">Georgia</option>
+                        <option value="HI">Hawaii</option>
+                        <option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option>
+                        <option value="IN">Indiana</option>
+                        <option value="IA">Iowa</option>
+                        <option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="ME">Maine</option>
+                        <option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="MI">Michigan</option>
+                        <option value="MN">Minnesota</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option>
+                        <option value="MT">Montana</option>
+                        <option value="NE">Nebraska</option>
+                        <option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option>
+                        <option value="NJ">New Jersey</option>
+                        <option value="NM">New Mexico</option>
+                        <option value="NY">New York</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="ND">North Dakota</option>
+                        <option value="OH">Ohio</option>
+                        <option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="RI">Rhode Island</option>
+                        <option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option>
+                        <option value="TN">Tennessee</option>
+                        <option value="TX">Texas</option>
+                        <option value="UT">Utah</option>
+                        <option value="VT">Vermont</option>
+                        <option value="VA">Virginia</option>
+                        <option value="WA">Washington</option>
+                        <option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option>
+                        <option value="WY">Wyoming</option>
+                    </select>
+                </div>
+
+                <div id="graphs-area"></div>
+                
+                <div id="product-price-visualization" class="mt-10">
+                    <h3 class="text-lg font-semibold mb-2">Milk Products Price Evolution</h3>
+                    <div class="mb-4 flex flex-wrap items-center gap-4">
+                        <label for="product-multiselect" class="block font-medium text-gray-700">Select up to 4 products:</label>
+                        <div id="product-multiselect" class="relative min-w-[220px]">
+                            <button id="product-dropdown-btn" type="button" class="w-full border rounded px-2 py-1 bg-white text-left flex items-center justify-between">
+                                <span id="product-dropdown-label" class="truncate">Select products...</span>
+                                <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div id="product-dropdown-list" class="absolute z-10 bg-white border rounded shadow w-full mt-1 hidden max-h-60 overflow-y-auto"></div>
+                        </div>
+                    </div>
+                    <div id="product-price-graph"></div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
 
-    <div id="yearly-report">
-        <div class="report-content">
-            <h2 id="report-year-title">Yearly Report</h2>
-            <p>Total Investment Return: <span id="report-return" class="font-semibold"></span></p>
-            <p>Economic Indicators:</p>
-            <p><em id="report-indicators" class="text-sm"></em></p>
-            <button id="dismiss-report-btn" class="action-button">Continue</button>
-        </div>
-    </div>
+    <style>
+    .tab-content {
+        transition: transform 300ms ease;
+        will-change: transform;
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+    }
+    .tab-content.tab-active {
+        transform: translateX(0);
+        z-index: 10;
+        pointer-events: auto;
+    }
+    .tab-content.tab-left {
+        transform: translateX(-100%);
+        z-index: 1;
+    }
+    .tab-content.tab-right {
+        transform: translateX(100%);
+        z-index: 1;
+    }
+    </style>
 
+    <script>
+    // Tab switching logic
+    const tabGame = document.getElementById('tab-game');
+    const tabVisualizations = document.getElementById('tab-visualizations');
+    const gameTabContent = document.getElementById('game-tab-content');
+    const visualizationTabContent = document.getElementById('visualization-tab-content');
 
-    <div id="gains-chart-panel" class="panel-shape panel-bgcolor mt-8 p-6">
-        <h3 class="font-semibold text-gray-700 mb-6 text-center">Investment Gains Over Time</h3>
-        <div id="gains-chart"></div>
-    </div>
+    // Set initial state for both tabs
+    gameTabContent.classList.add('tab-active');
+    visualizationTabContent.classList.add('tab-right');
+    
+    // Make sure no hidden classes are present
+    gameTabContent.classList.remove('hidden');
+    visualizationTabContent.classList.remove('hidden');
 
-    <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4">
-        <h3 class="font-semibold text-gray-700 mb-2">Investment Score</h3>
-        <div class="relative h-8 rounded-lg flex overflow-visible">
-            <!-- Grade sections -->
-            <div class="grade-section flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-l-lg" data-grade="F">F</div>
-            <div class="grade-section flex-1 bg-orange-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="E">E</div>
-            <div class="grade-section flex-1 bg-amber-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="D">D</div>
-            <div class="grade-section flex-1 bg-yellow-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="C">C</div>
-            <div class="grade-section flex-1 bg-lime-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="B">B</div>
-            <div class="grade-section flex-1 bg-green-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-r-lg" data-grade="A">A</div>
-            <!-- Vertical line indicator -->
-            <div id="metric-slider" class="absolute top-1/2 w-[3.5rem] h-[4rem] transition-all duration-500 -translate-x-1/2 -translate-y-1/2 z-10" style="left: 0%;">
-                <img src="assets/cow_slider_icon.png" alt="Cow slider" class="w-full h-full">
-            </div>
-        </div>
-        <p class="text-center mt-2">Current Grade: <span id="current-grade" class="font-semibold">F</span></p>
-    </div>
+    // Current active tab
+    let currentTab = 'game';
+
+    function setActiveTab(tab) {
+        // Don't do anything if we're already on this tab
+        if (tab === currentTab) return;
+        
+        // Update which tab is current
+        currentTab = tab;
+        
+        // Update tab button styles
+        if (tab === 'game') {
+            tabGame.classList.add('border-blue-500', 'text-blue-700');
+            tabGame.classList.remove('border-transparent', 'text-gray-500');
+            tabVisualizations.classList.remove('border-blue-500', 'text-blue-700');
+            tabVisualizations.classList.add('border-transparent', 'text-gray-500');
+            
+            // First position the game content - will be animated
+            gameTabContent.classList.remove('tab-left', 'tab-right');
+            gameTabContent.classList.add('tab-active');
+            
+            // Then position the visualization content
+            visualizationTabContent.classList.remove('tab-active', 'tab-left');
+            visualizationTabContent.classList.add('tab-right');
+        } else {
+            tabVisualizations.classList.add('border-blue-500', 'text-blue-700');
+            tabVisualizations.classList.remove('border-transparent', 'text-gray-500');
+            tabGame.classList.remove('border-blue-500', 'text-blue-700');
+            tabGame.classList.add('border-transparent', 'text-gray-500');
+            
+            // First position the visualization content - will be animated
+            visualizationTabContent.classList.remove('tab-left', 'tab-right');
+            visualizationTabContent.classList.add('tab-active');
+            
+            // Then position the game content
+            gameTabContent.classList.remove('tab-active', 'tab-right');
+            gameTabContent.classList.add('tab-left');
+        }
+    }
+
+    // Add click event listeners to tabs
+    tabGame.addEventListener('click', () => setActiveTab('game'));
+    tabVisualizations.addEventListener('click', () => setActiveTab('visualizations'));
+    </script>
+
 
     <script src="js/main.js"></script>
     <script src="js/load_datasets.js"></script>
