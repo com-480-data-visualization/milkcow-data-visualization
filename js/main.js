@@ -137,7 +137,16 @@ function hideTooltip() {
 }
 
 investButton.addEventListener('click', handleInvestment);
+investmentAmountInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        handleInvestment();
+        investmentAmountInput.value = '';
+    }
+});
 nextYearButton.addEventListener('click', advanceYear);
+
+const MIN_INVESTMENT = 1000;
 
 function handleInvestment() {
     if (!selectedStateData) return;
@@ -148,6 +157,12 @@ function handleInvestment() {
 
     if (isNaN(amount) || amount < 0) {
         showFeedback("Please enter a valid positive amount.", true);
+        return;
+    }
+
+    if (amount < MIN_INVESTMENT)
+    {
+        showFeedback(`Minimum investment is $${MIN_INVESTMENT.toLocaleString()}.`, true);
         return;
     }
 
