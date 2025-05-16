@@ -55,6 +55,20 @@ canvas {
 }
 
 /* Layout Styles */
+.panel-shape {
+    max-width: 960px;
+    margin: auto;
+    border: 1px solid #F9F7F5;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.panel-bgcolor {
+    background-color: #f1f5f9;
+}
+
 #map-container {
     max-width: 960px;
     margin: auto;

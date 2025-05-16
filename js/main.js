@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
     //console.log('Document is fully loaded and parsed');
     displayYear();
     displayBudget();
+    updateYear();
+    updateBudget();
+    updateInvestmentMetric();
 
     const dropdownBtn = document.getElementById('product-dropdown-btn');
     const dropdownList = document.getElementById('product-dropdown-list');
@@ -144,6 +147,11 @@ function handleStateClick(event, d) {
 
         renderMilkProductionGraph(stateName); // Render graph for selected state
 
+        // Focus the input field after the scroll animation completes
+        setTimeout(() => {
+            investmentAmountInput.focus();
+        }, 500); // 500ms matches the default smooth scroll duration
+
     } else {
         // Deselecting the current state (clicking it again)
         d3.select(clickedStateElement).classed("selected", false);
@@ -184,7 +192,16 @@ function hideTooltip() {
 }
 
 investButton.addEventListener('click', handleInvestment);
+investmentAmountInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        handleInvestment();
+        investmentAmountInput.value = '';
+    }
+});
 nextYearButton.addEventListener('click', advanceYear);
+
+const MIN_INVESTMENT = 1000;
 
 function handleInvestment() {
     if (!selectedStateData) return;
@@ -195,6 +212,12 @@ function handleInvestment() {
 
     if (isNaN(amount) || amount < 0) {
         showFeedback("Please enter a valid positive amount.", true);
+        return;
+    }
+
+    if (amount < MIN_INVESTMENT)
+    {
+        showFeedback(`Minimum investment is $${MIN_INVESTMENT.toLocaleString()}.`, true);
         return;
     }
 
@@ -230,6 +253,9 @@ function handleInvestment() {
     } else {
         console.warn(`Could not find SVG path for state: ${stateName}`);
     }
+
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
 // UI Update Functions
@@ -251,6 +277,9 @@ function displayInvestments() {
             investmentsList.appendChild(li);
         }
     });
+
+    // Update investment metric
+    updateInvestmentMetric();
 }
 
 function showFeedback(message, isError = false) {
@@ -275,8 +304,9 @@ function advanceYear() {
 
     // Update UI
     displayInvestments();
-    displayBudget();
-    displayYear();
+    updateBudget();
+    updateYear();
+    updateProfitHistoryChart();
 }
 
 /**
@@ -303,16 +333,23 @@ function calculateStatePayoffs(state, year) {
 }
 
 // TODO make it use dataset data and not random increments
-function applyPayoffs() {
+function applyPayoffs(current_year) {
+    totalGains = 0;
+    
     us_states.forEach((state) => {
         const investment = investments[state] || 0; // invested amount
         const payoffs = calculateStatePayoffs(state, currentYear);
         investments[state] = investment + payoffs; // Do not give, just add to investment amount
+        totalGains += payoffs;
 
         if (payoffs != 0) {
             console.log(`Payoff for ${state}: $${payoffs.toLocaleString()}`);
         }
     });
+
+    // Update gains chart
+    totalGainsRelative = totalGains / getCapital() * 100;
+    addToProfitHistoryChart(currentYear, totalGainsRelative);
 
     /*
     state_milk_production.forEach((d) => {
