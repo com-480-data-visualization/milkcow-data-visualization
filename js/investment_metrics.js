@@ -1,5 +1,4 @@
 function updateInvestmentMetric() {
-
     metricValue = computeInvestmentMetric();
 
     // Clamp!
@@ -9,16 +8,8 @@ function updateInvestmentMetric() {
     const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
     const grade = grades[Math.min(5, Math.floor(metricValue))];
     
-    // Update the visual elements
-    const slider = document.getElementById('metric-slider');
-    const gradeDisplay = document.getElementById('current-grade');
-    
-    // Calculate position based on grade sections
-    // Each section is 10% of the 60% content area (so 6 equal sections)
-    const position = (6.0 - metricValue) / 6.0 * 100.0; // Start at 20% padding, move right by sections
-    slider.style.left = `${position}%`;
-    
     // Update the grade display with appropriate color
+    const gradeDisplay = document.getElementById('current-grade');
     gradeDisplay.textContent = grade;
     const colors = {
         'F': '#dc2626', // red
@@ -29,6 +20,24 @@ function updateInvestmentMetric() {
         'A': '#16a34a'  // green
     };
     gradeDisplay.style.color = colors[grade];
+
+    // Reset all sections to normal size first
+    document.querySelectorAll('.grade-section').forEach(section => {
+        section.style.transform = 'scale(1)';
+        section.style.zIndex = '0';
+    });
+
+    // Scale up the current grade section
+    const currentSection = document.querySelector(`.grade-section[data-grade="${grade}"]`);
+    if (currentSection) {
+        currentSection.style.transform = 'scale(1.2)';
+        currentSection.style.zIndex = '1';
+    }
+    
+    // Calculate position based on grade sections
+    const slider = document.getElementById('metric-slider');
+    const position = (6.0 - metricValue) / 6.0 * 100.0;
+    slider.style.left = `${position}%`;
 }
 
 /**

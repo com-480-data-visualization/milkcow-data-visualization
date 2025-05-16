@@ -73,16 +73,18 @@
 
     <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4">
         <h3 class="font-semibold text-gray-700 mb-2">Investment Score</h3>
-        <div class="relative h-8 rounded flex overflow-visible">
+        <div class="relative h-8 rounded-lg flex overflow-visible">
             <!-- Grade sections -->
-            <div class="flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium">F</div>
-            <div class="flex-1 bg-orange-600 flex items-center justify-center text-white text-sm font-medium">E</div>
-            <div class="flex-1 bg-amber-600 flex items-center justify-center text-white text-sm font-medium">D</div>
-            <div class="flex-1 bg-yellow-600 flex items-center justify-center text-white text-sm font-medium">C</div>
-            <div class="flex-1 bg-lime-600 flex items-center justify-center text-white text-sm font-medium">B</div>
-            <div class="flex-1 bg-green-600 flex items-center justify-center text-white text-sm font-medium">A</div>
+            <div class="grade-section flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-l-lg" data-grade="F">F</div>
+            <div class="grade-section flex-1 bg-orange-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="E">E</div>
+            <div class="grade-section flex-1 bg-amber-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="D">D</div>
+            <div class="grade-section flex-1 bg-yellow-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="C">C</div>
+            <div class="grade-section flex-1 bg-lime-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="B">B</div>
+            <div class="grade-section flex-1 bg-green-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-r-lg" data-grade="A">A</div>
             <!-- Vertical line indicator -->
-            <div id="metric-slider" class="absolute top-1/2 h-[130%] w-1.5 bg-white border border-gray-600 rounded-full transition-all duration-500 shadow-lg -translate-x-1/2 -translate-y-1/2 shadow-black/20" style="left: 0%;"></div>
+            <div id="metric-slider" class="absolute top-1/2 w-[3.5rem] h-[4rem] transition-all duration-500 -translate-x-1/2 -translate-y-1/2 z-10" style="left: 0%;">
+                <img src="assets/cow_slider_icon.png" alt="Cow slider" class="w-full h-full">
+            </div>
         </div>
         <p class="text-center mt-2">Current Grade: <span id="current-grade" class="font-semibold">F</span></p>
     </div>
