@@ -9,7 +9,6 @@ let selectedStateElement = null;
 let selectedStateData = null;
 let budget = 100000;
 let investments = {};
-let totalInvestment = 0;
 
 const selectedStateInfoEl = document.getElementById('selected-state-info');
 const budgetEl = document.getElementById('budget');
@@ -28,8 +27,8 @@ const capitalEl = document.getElementById('capital');
 ///////////////////////////////////////////////////////
 document.addEventListener('DOMContentLoaded', function() {
     //console.log('Document is fully loaded and parsed');
-    displayYear();
-    displayBudget();
+    updateYear();
+    updateBudget();
 });
 
 const investmentColorScale = d3.scaleLinear()
@@ -94,6 +93,11 @@ function handleStateClick(event, d) {
         investmentFeedback.textContent = '';
         investmentPanel.classList.remove('hidden');
         investmentAmountInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Smoothly scroll into view the input field
+        
+        // Focus the input field after the scroll animation completes
+        setTimeout(() => {
+            investmentAmountInput.focus();
+        }, 500); // 500ms matches the default smooth scroll duration
 
     } else {
         // Deselecting the current state (clicking it again)
@@ -150,7 +154,7 @@ function handleInvestment() {
     const netChange = amount - currentInvestment;
 
     if (netChange > budget) {
-        showFeedback(`Insufficient funds. You only have $${budget.toLocaleString()} available for new investment.`, true);
+        showFeedback(`Insufficient funds. You only have $${budget.toLocaleString()} available!`, true);
         return;
     }
 
@@ -163,7 +167,7 @@ function handleInvestment() {
     }
 
     // Update UI
-    displayBudget();
+    updateBudget();
     displayInvestments(); // Update the list display
     showFeedback(`Successfully invested $${amount.toLocaleString()} in ${stateName}.`, false);
 
@@ -209,25 +213,34 @@ function showFeedback(message, isError = false) {
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
 
-function displayYear() {
+function updateYear() {
     currentYearEl.textContent = currentYear;
 }
 
-function displayBudget() {
+function getCapital() {
+    // Total capital = budget + investments
+    return budget + computeTotalInvestment();
+}
+
+function updateBudget() {
     budgetEl.textContent = budget.toLocaleString();
-    const capital = budget + computeTotalInvestment(); // Total capital = budget + investments
+    const capital = getCapital();
     capitalEl.textContent = capital.toLocaleString();
 }
 
 function advanceYear() {
+
+    // Compute investment metric
+    computeInvestmentMetric();
     
     applyPayoffs(); // Apply state payoffs
     currentYear++; // At last, increase current year counter
 
     // Update UI
     displayInvestments();
-    displayBudget();
-    displayYear();
+    updateBudget();
+    updateYear();
+    updateProfitHistoryChart();
 }
 
 /**
@@ -254,16 +267,23 @@ function calculateStatePayoffs(state, year) {
 }
 
 // TODO make it use dataset data and not random increments
-function applyPayoffs() {
+function applyPayoffs(current_year) {
+    totalGains = 0;
+    
     us_states.forEach((state) => {
         const investment = investments[state] || 0; // invested amount
         const payoffs = calculateStatePayoffs(state, currentYear);
         investments[state] = investment + payoffs; // Do not give, just add to investment amount
+        totalGains += payoffs;
 
         if (payoffs != 0) {
             console.log(`Payoff for ${state}: $${payoffs.toLocaleString()}`);
         }
     });
+
+    // Update gains chart
+    totalGainsRelative = totalGains / getCapital() * 100;
+    addToProfitHistoryChart(currentYear, totalGainsRelative);
 
     /*
     state_milk_production.forEach((d) => {
