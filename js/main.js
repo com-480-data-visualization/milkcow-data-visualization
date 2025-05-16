@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //console.log('Document is fully loaded and parsed');
     updateYear();
     updateBudget();
+    updateInvestmentMetric();
 });
 
 const investmentColorScale = d3.scaleLinear()
@@ -184,7 +185,9 @@ function handleInvestment() {
     }
 }
 
+/////////////////////////////////////////////////////////////
 // UI Update Functions
+/////////////////////////////////////////////////////////////
 
 function displayInvestments() {
     investmentsList.innerHTML = '';
@@ -203,12 +206,19 @@ function displayInvestments() {
             investmentsList.appendChild(li);
         }
     });
+
+    // Update investment metric
+    updateInvestmentMetric();
 }
 
 function showFeedback(message, isError = false) {
     investmentFeedback.textContent = message;
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
+
+/////////////////////////////////////////////////////////////
+// GAME MECHANICS IMPLEMENTED HERE
+/////////////////////////////////////////////////////////////
 
 function updateYear() {
     currentYearEl.textContent = currentYear;

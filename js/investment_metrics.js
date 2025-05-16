@@ -1,8 +1,35 @@
+function updateInvestmentMetric() {
 
-/*
-let budget = 100000;
-let investments = {};
-*/
+    metricValue = computeInvestmentMetric();
+
+    // Clamp!
+    metricValue = Math.min(6, Math.max(0, metricValue));
+    
+    // Get the grade based on the value
+    const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const grade = grades[Math.min(5, Math.floor(metricValue))];
+    
+    // Update the visual elements
+    const slider = document.getElementById('metric-slider');
+    const gradeDisplay = document.getElementById('current-grade');
+    
+    // Calculate position based on grade sections
+    // Each section is 10% of the 60% content area (so 6 equal sections)
+    const position = (6.0 - metricValue) / 6.0 * 100.0; // Start at 20% padding, move right by sections
+    slider.style.left = `${position}%`;
+    
+    // Update the grade display with appropriate color
+    gradeDisplay.textContent = grade;
+    const colors = {
+        'F': '#dc2626', // red
+        'E': '#ea580c', // orange
+        'D': '#d97706', // amber
+        'C': '#ca8a04', // yellow
+        'B': '#65a30d', // lime
+        'A': '#16a34a'  // green
+    };
+    gradeDisplay.style.color = colors[grade];
+}
 
 /**
  * 
@@ -58,6 +85,7 @@ function _weights() {
     // Calculate weights for each investment
     const weights = {};
     for (const [state, investment] of Object.entries(investments)) {
+        if (investment === 0) continue;
         weights[state] = investment / totalInvestment;
     }
 
@@ -66,6 +94,8 @@ function _weights() {
 
 function _entropy() {
     const weights = _weights();
+
+    console.log("Weights: ", weights);
 
     let entropy = 0;
     for (const [state, weight] of Object.entries(weights)) {
