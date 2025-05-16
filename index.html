@@ -54,6 +54,33 @@
         </div>
     </div>
 
+    <!-- Investment Data Visualizations Panel -->
+    <div id="investment-data-viz-panel" class="mt-8 p-4 border border-slate-300 rounded bg-white text-gray-700">
+        <h3 class="font-semibold mb-4">Investment Data Visualizations</h3>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="mini-graph-placeholder border border-dashed border-gray-400 h-40 flex items-center justify-center text-gray-500 relative">
+                Mini Graph 1 Placeholder
+                <button class="info-button absolute top-1 right-1 text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center" onclick="enlargeGraph(this.parentElement)">i</button>
+            </div>
+            <div class="mini-graph-placeholder border border-dashed border-gray-400 h-40 flex items-center justify-center text-gray-500 relative">
+                Mini Graph 2 Placeholder
+                <button class="info-button absolute top-1 right-1 text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center" onclick="enlargeGraph(this.parentElement)">i</button>
+            </div>
+        </div>
+        <div>
+            <div class="large-graph-placeholder border border-dashed border-gray-400 h-60 flex items-center justify-center text-gray-500 relative">
+                <!-- D3.js graph will be rendered here by panel3.js -->
+                <svg id="capital-evolution-graph" width="100%" height="100%"></svg>                
+                <button class="info-button absolute top-1 right-1 text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center" onclick="enlargeGraph(this.parentElement)">i</button>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </div>
+
+
+
     <div id="yearly-report">
         <div class="report-content">
             <h2 id="report-year-title">Yearly Report</h2>
@@ -67,6 +94,7 @@
     <script src="js/main.js"></script>
     <script src="js/load_datasets.js"></script>
     <script src="js/background.js"></script>
+    <script src="js/panel3.js"></script>
 
 </body>
 </html>
