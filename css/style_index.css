@@ -55,7 +55,7 @@ canvas {
 }
 
 /* Layout Styles */
-.panel-shape {
+#map-container {
     max-width: 960px;
     margin: auto;
     border: 1px solid #F9F7F5;
@@ -69,19 +69,8 @@ canvas {
     background-color: #f1f5f9;
 }
 
-#map-container {
-    max-width: 960px;
-    margin: auto;
-    border: 1px solid #F9F7F5;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-
 #game-controls {
     padding: 1rem;
-    background-color: #f1f5f9;
     border-top: 1px solid #e2e8f0;
     border-radius: 0 0 0.5rem 0.5rem;
 }
@@ -119,7 +108,7 @@ canvas {
     background-color: #3E8914;
     color: #ffffff;
     border: none;
-    padding: 0.8rem 1.6rem;
+    padding: 0 1.6rem;
     border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
@@ -210,6 +199,13 @@ canvas {
 
 .report-content .return-neutral {
     color: #4b5563;
+}
+
+.normal-text {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    color: #4b5563; /* Tailwind's gray-600 */
+    line-height: 1.5;
 }
 
 /* Event markers and tooltips */

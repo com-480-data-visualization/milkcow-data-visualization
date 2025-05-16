@@ -9,7 +9,6 @@ let selectedStateElement = null;
 let selectedStateData = null;
 let budget = 100000;
 let investments = {};
-let totalInvestment = 0;
 
 const selectedStateInfoEl = document.getElementById('selected-state-info');
 const budgetEl = document.getElementById('budget');
@@ -144,14 +143,12 @@ function handleStateClick(event, d) {
         investmentFeedback.textContent = '';
         investmentPanel.classList.remove('hidden');
         investmentAmountInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Smoothly scroll into view the input field
-
         renderMilkProductionGraph(stateName); // Render graph for selected state
 
         // Focus the input field after the scroll animation completes
         setTimeout(() => {
             investmentAmountInput.focus();
         }, 500); // 500ms matches the default smooth scroll duration
-
     } else {
         // Deselecting the current state (clicking it again)
         d3.select(clickedStateElement).classed("selected", false);
@@ -225,7 +222,7 @@ function handleInvestment() {
     const netChange = amount - currentInvestment;
 
     if (netChange > budget) {
-        showFeedback(`Insufficient funds. You only have $${budget.toLocaleString()} available for new investment.`, true);
+        showFeedback(`Insufficient funds. You only have $${budget.toLocaleString()} available!`, true);
         return;
     }
 
@@ -238,7 +235,7 @@ function handleInvestment() {
     }
 
     // Update UI
-    displayBudget();
+    updateBudget();
     displayInvestments(); // Update the list display
     showFeedback(`Successfully invested $${amount.toLocaleString()} in ${stateName}.`, false);
 
@@ -258,7 +255,9 @@ function handleInvestment() {
     document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
+/////////////////////////////////////////////////////////////
 // UI Update Functions
+/////////////////////////////////////////////////////////////
 
 function displayInvestments() {
     investmentsList.innerHTML = '';
@@ -287,13 +286,22 @@ function showFeedback(message, isError = false) {
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
 
-function displayYear() {
+/////////////////////////////////////////////////////////////
+// GAME MECHANICS IMPLEMENTED HERE
+/////////////////////////////////////////////////////////////
+
+function updateYear() {
     currentYearEl.textContent = currentYear;
 }
 
-function displayBudget() {
+function getCapital() {
+    // Total capital = budget + investments
+    return budget + computeTotalInvestment();
+}
+
+function updateBudget() {
     budgetEl.textContent = budget.toLocaleString();
-    const capital = budget + computeTotalInvestment(); // Total capital = budget + investments
+    const capital = getCapital();
     capitalEl.textContent = capital.toLocaleString();
 }
 

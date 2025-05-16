@@ -1,0 +1,89 @@
+/* Merged panel styles from style_index.css into panels.css */
+
+.mini-graph-placeholder, .large-graph-placeholder {
+    /* border: 1px solid #F9F7F5; Match the main panel border color */
+    border-radius: 0.5rem; /* Rounded corners */
+    background-color: rgba(255, 255, 255, 0.96); /* Slightly transparent white background */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Subtle shadow */
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+    position: relative; /* Ensure pseudo-elements are positioned correctly */
+    box-sizing: border-box; /* Prevent size changes due to border */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #6b7280; /* Tailwind's gray-500 */
+    border: 1px #d1d5db;
+    height: 10rem; /* Default height for mini-graph placeholders */
+}
+
+.large-graph-placeholder {
+    height: 15rem; /* Default height for large-graph placeholders */
+}
+
+.mini-graph-placeholder svg, .large-graph-placeholder svg {
+    width: 100%;
+    height: 100%;
+}
+
+.mini-graph-placeholder::before, .large-graph-placeholder::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px solid transparent;
+    border-radius: inherit;
+    box-sizing: border-box; /* Ensure pseudo-element respects box model */
+    pointer-events: none; /* Allow clicks to pass through */
+}
+
+.mini-graph-placeholder:hover, .large-graph-placeholder:hover {
+    box-shadow: 0 6px 8px -2px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2); /* Slightly stronger shadow on hover */
+    cursor: pointer; /* Indicate clickability */
+}
+
+/* Styles for the modal/popup panel */
+.panel-enlarged {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 80vw !important; /* Adjust width as needed */
+    max-width: 900px; /* Maximum width */
+    height: 75vh !important; /* Adjust height as needed */
+    max-height: 700px; /* Maximum height */
+    z-index: 1000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    cursor: default !important; /* Ensure the cursor does not change to a pointer */
+}
+
+/* Ensure the content area within the enlarged panel can scroll */
+.panel-enlarged .detailed-content-area {
+    padding: 20px; /* Add padding inside the content area */
+    padding-top: 45px; /* Extra padding at the top for title/close button */
+    overflow-y: auto;
+    flex-grow: 1; /* Allow content to take available space */
+    height: 100%; /* Necessary for some browsers to respect flex-grow with overflow */
+}
+
+/* Styles for the SVG in the enlarged D3 panel */
+.panel-enlarged #capital-evolution-graph {
+    width: calc(100% - 40px) !important; /* Account for padding */
+    height: calc(100% - 80px) !important; /* Account for padding and potential title */
+    margin: 20px auto; /* Center it and give some margin */
+}
+
+/* Styles for the backdrop */
+#modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 999; /* Below the panel but above everything else */
+    display: none; /* Hidden by default */
+}
