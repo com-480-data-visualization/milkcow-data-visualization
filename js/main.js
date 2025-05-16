@@ -209,24 +209,10 @@ function handleStateHover(event, d) {
     `;
 }
 
-function handleTooltipMove(d3Event) { // Parameter renamed from 'event' for clarity with D3
-    // Ensure stateTooltip is defined and available (it's a global const in this file)
-    if (!stateTooltip) {
-        return;
-    }
-
-    // Determine the correct offset parent for the tooltip
-    const offsetParentEl = stateTooltip.offsetParent || document.body;
-    
-    // Get mouse coordinates relative to the offset parent
-    const [mouseX, mouseY] = d3.pointer(d3Event, offsetParentEl);
-
-    // Offset the tooltip slightly from the cursor (e.g., 10px right, 15px down)
-    const offsetX = 10; 
-    const offsetY = 15;
-
-    stateTooltip.style.left = (mouseX + offsetX) + "px";
-    stateTooltip.style.top = (mouseY + offsetY) + "px";
+function handleTooltipMove(event) {
+    // Adjust tooltip position to be slightly to the left and below the cursor
+    stateTooltip.style.left = (event.pageX + 20) + "px";
+    stateTooltip.style.top = (event.pageY - 5) + "px";  // 15px 
 }
 
 function hideTooltip() {

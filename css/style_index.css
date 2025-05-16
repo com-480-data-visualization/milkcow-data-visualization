@@ -247,3 +247,37 @@ canvas {
     font-size: 13px;
     transition: opacity 0.3s ease;
 }
+
+/* Year Transition Animation */
+@keyframes yearChange {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    20% {
+        transform: translateY(-30px) scale(0.8);
+        opacity: 0;
+    }
+    21% {
+        transform: translateY(30px) scale(0.8);
+        opacity: 0;
+    }
+    40% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.year-change-animation {
+    display: inline-block; /* Important for transform to work as expected */
+    animation: yearChange 1s ease-in-out forwards;
+}
+
+/* Ensure the main tooltip is above the year animation if they overlap */
+#tooltip {
+    z-index: 10000; /* Higher than year-transition-animation */
+}
