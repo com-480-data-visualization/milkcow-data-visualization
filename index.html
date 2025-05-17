@@ -7,9 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/topojson-client@3"></script>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style_index.css">
     <link rel="stylesheet" type="text/css" href="css/panels.css">
@@ -217,6 +215,14 @@
                     </div>
                     <div id="cheese-legend" class="mt-6 flex flex-wrap justify-center gap-3 pb-4"></div>
                 </div>
+
+                <!-- Sankey Chart Visualization -->
+                <div id="sankey-chart-container" class="mt-10 pt-8 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4 text-center">Milk-Cow Economics Over Time</h3>
+                    <div class="mb-6 flex flex-wrap items-center justify-center gap-4">
+                    </div>
+                    <div id="sankey-chart-area" class="w-full min-h-[600px] svg-container"></div>
+                </div>
             </div>
             </div>
         </div>
@@ -320,6 +326,7 @@
     <script src="js/gains_chart.js"></script>
     <script src="js/investment_metrics.js"></script>
     <script src="js/cheese_wheel.js"></script>
+    <script src="js/sankey_chart.js"></script>
 
 
 </body>
