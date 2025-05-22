@@ -196,10 +196,10 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
     legendDiv.style.height = "100%"; // Ensure it takes full height to allow content centering
 
     d3.select(chartDiv).select("svg").remove();
-    
+
     const capitalDisplayHTMLBase = () => `
         <div class="legend-capital-display font-semibold normal-text mb-2 mt-2">
-            Current Capital: $${d3.format(",.2f")(typeof budget !== 'undefined' ? budget : 0)}
+            Current Liquidity: $${d3.format(",.2f")(typeof budget !== 'undefined' ? budget : 0)}
         </div>
     `;
 
@@ -217,7 +217,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
     }
 
     const chartRect = chartDiv.getBoundingClientRect();
-    
+
     let width = chartRect.width;
     let height = chartRect.height;
 
@@ -227,15 +227,15 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
         legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='text-xs text-gray-500 p-1'>Chart area too small to display details.</p>");
         return;
     }
-    
-    chartDiv.innerHTML = ""; 
+
+    chartDiv.innerHTML = "";
     // legendDiv.innerHTML = ""; // Will be populated by capital + wrapped content
 
     const marginForRadius = Math.min(width, height) * 0.1;
     let radius = Math.min(width, height) / 2 - marginForRadius;
 
     if (width <= 0 || height <= 0 || radius <= 0) {
-        console.warn("Interactive pie chart dimensions or radius invalid.", {width, height, radius, chartRect});
+        console.warn("Interactive pie chart dimensions or radius invalid.", { width, height, radius, chartRect });
         chartDiv.innerHTML = "<p class='text-xs text-gray-500 text-center p-1'>Chart cannot be rendered (size issue).</p>";
         return;
     }
@@ -244,8 +244,8 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
 
     const svg = d3.select(chartDiv)
         .append("svg")
-        .attr("width", 0.95*width)
-        .attr("height", 0.95*height)
+        .attr("width", 0.95 * width)
+        .attr("height", 0.95 * height)
         .append("g")
         .attr("transform", `translate(${width / 2},${height / 2})`);
 
@@ -255,7 +255,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
         .attr("transform", `translate(${-width / 2},${-height / 2})`)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .on("click", function() {
+        .on("click", function () {
             if (selectedPath) {
                 paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
                 selectedPath = null;
@@ -302,16 +302,16 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
             <div class="interaction-section w-full mt-3 pt-3 border-t border-gray-200">
                 <p class="small-text font-semibold mb-1">Sell ${d.data.label} shares:</p>
                 <div class="flex items-center space-x-2 mb-2">
-                    <input type="range" id="sell-percentage-slider" min="0" max="100" value="10" class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                    <span id="sell-percentage-value" class="small-text w-10 text-right">10%</span>
+                    <input type="range" id="pie-chart-sell-percentage-slider" min="0" max="100" value="10" class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <span id="pie-chart-sell-percentage-value" class="small-text w-10 text-right">10%</span>
                 </div>
-                <button id="sell-button" class="w-full px-3 py-1 bg-red-500 normal-text-white rounded hover:bg-red-600 focus:outline-none">
-                    Sell <span id="sell-amount-display">$${d3.format(",.2f")(currentInvestmentValue * 0.10)}</span>
+                <button id="pie-chart-sell-button" class="w-full px-3 py-1 bg-red-500 normal-text-white rounded hover:bg-red-600 focus:outline-none">
+                    Sell <span id="pie-chart-sell-amount-display">$${d3.format(",.2f")(currentInvestmentValue * 0.10)}</span>
                 </button>
             </div>
         `;
         }
-        
+
         // TODO: make that the two buttons have the same size
         // Invest Section (only if not "Others")
         if (!d.data.isOther) {
@@ -320,24 +320,24 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                     <p class="small-text font-semibold mb-1">Invest in ${d.data.label}:</p>
                     <div class="flex items-center space-x-2 mb-2">
                         <span class="small-text">$</span>
-                        <input type="number" id="invest-amount-input" min="0" step="100" placeholder="Amount" class="flex-grow small-text p-1 border rounded w-full">
+                        <input type="number" id="pie-chart-invest-amount-input" min="0" step="100" placeholder="" class="flex-grow small-text p-1 border rounded w-full">
                     </div>
-                    <button id="invest-button" class="w-full px-3 py-1 bg-green-500 normal-text-white rounded hover:bg-green-600 focus:outline-none">Invest</button>
+                    <button id="pie-chart-invest-button" class="w-full px-3 py-1 bg-green-500 normal-text-white rounded hover:bg-green-600 focus:outline-none">Invest</button>
                 </div>
             `;
         }
 
         detailsAndInteractionsHTML += `<button id="clear-pie-selection" class="mt-8 w-full px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>`;
-        
+
         legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper(detailsAndInteractionsHTML);
 
         // Event Listeners for interaction elements
-        const sellSlider = document.getElementById('sell-percentage-slider');
-        const sellPercentageValue = document.getElementById('sell-percentage-value');
-        const sellAmountDisplay = document.getElementById('sell-amount-display');
+        const sellSlider = document.getElementById('pie-chart-sell-percentage-slider');
+        const sellPercentageValue = document.getElementById('pie-chart-sell-percentage-value');
+        const sellAmountDisplay = document.getElementById('pie-chart-sell-amount-display');
 
         if (sellSlider) {
-            sellSlider.addEventListener('input', function() {
+            sellSlider.addEventListener('input', function () {
                 const percentage = parseFloat(this.value);
                 sellPercentageValue.textContent = `${percentage.toFixed(0)}%`;
                 const sellValue = currentInvestmentValue * (percentage / 100);
@@ -345,9 +345,9 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
             });
         }
 
-        const sellButton = document.getElementById('sell-button');
+        const sellButton = document.getElementById('pie-chart-sell-button');
         if (sellButton) {
-            sellButton.addEventListener('click', function() {
+            sellButton.addEventListener('click', function () {
                 const percentageToSell = parseFloat(sellSlider.value);
                 if (isNaN(percentageToSell) || percentageToSell < 0 || percentageToSell > 100) {
                     alert("Invalid percentage to sell.");
@@ -358,78 +358,69 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                 const amountToSell = currentInvestmentValue * (percentageToSell / 100);
                 const selectedLabel = d.data.label; // Capture label before modification
 
-                if (d.data.isOther) {
-                    const totalOriginalOthersValue = d.data.value;
-                    if (totalOriginalOthersValue > 0 && d.data.others_dict && Array.isArray(d.data.others_dict)) {
-                        let totalAmountActuallySoldFromOthers = 0;
-                        for (const otherItem of d.data.others_dict) {
-                            const stateName = otherItem.label;
-                            const investmentInThisState = investments[stateName] || 0;
-                            if (investmentInThisState > 0) {
-                                const proportionInOriginalOthers = (otherItem.value / totalOriginalOthersValue);
-                                let sellFromThisState = amountToSell * proportionInOriginalOthers;
-                                sellFromThisState = Math.min(sellFromThisState, investmentInThisState); // Cap at current investment
-
-                                if (sellFromThisState > 0) {
-                                    investments[stateName] -= sellFromThisState;
-                                    budget += sellFromThisState;
-                                    totalAmountActuallySoldFromOthers += sellFromThisState;
-                                    if (investments[stateName] < 0.01) delete investments[stateName];
-                                }
-                            }
-                        }
-                    } else {
-                        console.warn("Cannot process selling from 'Others': data missing or zero value.");
-                    }
-                } else { // Selling from a specific, non-"Other" state
-                    const stateName = d.data.label;
-                    if (investments[stateName] && amountToSell > 0) {
-                        const actualAmountToSell = Math.min(amountToSell, investments[stateName]);
-                        investments[stateName] -= actualAmountToSell;
-                        budget += actualAmountToSell;
-                        if (investments[stateName] < 0.01) delete investments[stateName];
-                    } else if (amountToSell > 0) {
-                        console.error("Investment not found or already zero for selling:", stateName);
-                        return;
-                    }
-                }
-
-                if (typeof updateInvestmentMetrics === 'function') updateInvestmentMetrics();
-                const newData = getInvestmentPieData();
-                renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
-            });
-        }
-
-        const investButton = document.getElementById('invest-button');
-        const investAmountInput = document.getElementById('invest-amount-input');
-
-        if (investButton && investAmountInput && !d.data.isOther) {
-            investButton.addEventListener('click', function() {
-                const amountToInvest = parseFloat(investAmountInput.value);
-                if (isNaN(amountToInvest) || amountToInvest <= 0) {
-                    alert("Please enter a valid positive amount to invest.");
-                    return;
-                }
-                if (amountToInvest > budget) {
-                    alert("Not enough budget to make this investment. Available: $" + d3.format(",.2f")(budget));
-                    return;
-                }
-
+                // Selling from a specific, non-"Other" state
                 const stateName = d.data.label;
-                const selectedLabel = d.data.label; // Capture label before modification
+                if (investments[stateName] && amountToSell > 0) {
+                    const actualAmountToSell = Math.min(amountToSell, investments[stateName]);
+                    investments[stateName] -= actualAmountToSell;
+                    budget += actualAmountToSell;
+                    if (investments[stateName] < 0.01) delete investments[stateName];
+                } else if (amountToSell > 0) {
+                    console.error("Investment not found or already zero for selling:", stateName);
+                    return;
+                }
 
-                investments[stateName] = (investments[stateName] || 0) + amountToInvest;
-                budget -= amountToInvest;
-
-                if (typeof updateInvestmentMetrics === 'function') updateInvestmentMetrics();
+                updateInvestmentMetric();
+                updateBudget();
+                displayInvestments(); //TODO: remove this, pie chart is enough
+                updateMap(stateName)
                 const newData = getInvestmentPieData();
                 renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
             });
         }
-        
+
+        const investButton = document.getElementById('pie-chart-invest-button');
+        const investAmountInput = document.getElementById('pie-chart-invest-amount-input');
+
+        function handlePieInvestment() {
+            const amountToInvest = parseFloat(investAmountInput.value);
+            if (isNaN(amountToInvest) || amountToInvest <= 0) {
+                alert("Please enter a valid positive amount to invest.");
+                return;
+            }
+            if (amountToInvest > budget) {
+                alert("Not enough budget to make this investment. Available: $" + d3.format(",.2f")(budget));
+                return;
+            }
+
+            const stateName = d.data.label;
+            const selectedLabel = d.data.label; // Capture label before modification
+            console.log("Investing in:", stateName, "Amount:", amountToInvest);
+            investments[stateName] = (investments[stateName] || 0) + amountToInvest;
+            budget -= amountToInvest;
+
+            updateInvestmentMetric();
+            updateBudget();
+            displayInvestments(); //TODO: remove this, pie chart is enough
+            updateMap(stateName);
+            const newData = getInvestmentPieData();
+            renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
+        }
+
+        if (investButton && investAmountInput) {
+            investButton.addEventListener('click', handlePieInvestment);
+            investButton.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent form submission
+                    handlePieInvestment();
+                    investButton.value = '';
+                }
+            });
+        }
+
         const clearPieButton = document.getElementById('clear-pie-selection');
         if (clearPieButton) {
-            clearPieButton.addEventListener('click', function(event) {
+            clearPieButton.addEventListener('click', function (event) {
                 event.stopPropagation();
                 paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
                 selectedPath = null;
@@ -444,44 +435,44 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
             updateLegend(d);
         }
     })
-    .on("mouseout", function (event, d) {
-        if (!selectedPath) {
-            d3.select(this).transition().duration(150).attr("d", arcGen);
-            legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
-        }
-    })
-    .on("click", function (event, d) {
-        event.stopPropagation(); 
-        const clickedPath = this;
+        .on("mouseout", function (event, d) {
+            if (!selectedPath) {
+                d3.select(this).transition().duration(150).attr("d", arcGen);
+                legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+            }
+        })
+        .on("click", function (event, d) {
+            event.stopPropagation();
+            const clickedPath = this;
 
-        if (selectedPath === clickedPath) { 
-            paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
-            selectedPath = null;
-            legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
-        } else { 
-            selectedPath = clickedPath;
-            paths.each(function(p_d) {
-                const currentPath = d3.select(this);
-                if (this === clickedPath) {
-                    currentPath.transition().duration(150).attr("d", arcHover).style("opacity", 1);
-                } else {
-                    currentPath.transition().duration(150).attr("d", arcGen).style("opacity", 0.8);
-                }
-            });
-            updateLegendSelected(d);
-        }
-    });
+            if (selectedPath === clickedPath) {
+                paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
+                selectedPath = null;
+                legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+            } else {
+                selectedPath = clickedPath;
+                paths.each(function (p_d) {
+                    const currentPath = d3.select(this);
+                    if (this === clickedPath) {
+                        currentPath.transition().duration(150).attr("d", arcHover).style("opacity", 1);
+                    } else {
+                        currentPath.transition().duration(150).attr("d", arcGen).style("opacity", 0.8);
+                    }
+                });
+                updateLegendSelected(d);
+            }
+        });
 
     // legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
     // Logic to handle re-selection or default legend display
     if (previouslySelectedLabel) {
         let foundAndSelected = false;
-        paths.each(function(p_d) {
+        paths.each(function (p_d) {
             if (p_d.data.label === previouslySelectedLabel) {
                 selectedPath = this; // Update the selectedPath to the new DOM element
 
                 // Apply visual styles for selection
-                paths.each(function() {
+                paths.each(function () {
                     const currentPath = d3.select(this);
                     if (this === selectedPath) {
                         currentPath.transition().duration(150).attr("d", arcHover).style("opacity", 1);
