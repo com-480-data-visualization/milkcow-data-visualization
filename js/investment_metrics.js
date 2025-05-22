@@ -1,3 +1,7 @@
+// Investment metrics calculation and visualization
+// Gives a score that tells how good the investment strategy is
+// It is obviously arbitrary as strategy is out of scope here, it is only to demonstrate
+
 function updateInvestmentMetric() {
     metricValue = _computeInvestmentMetric();
 

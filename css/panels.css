@@ -47,18 +47,21 @@
 }
 
 /* Styles for the modal/popup panel */
+/* TODO: make the ratio of the panel width and height constant */
 .panel-enlarged {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     width: 80vw !important; /* Adjust width as needed */
-    max-width: 900px; /* Maximum width */
+    max-width: 1000px;
     height: 75vh !important; /* Adjust height as needed */
-    max-height: 700px; /* Maximum height */
+    max-height: 800px;
     z-index: 10000 !important; /* Ensure this is higher than the backdrop, increased z-index */
     display: flex !important;
     flex-direction: column !important;
+    justify-content: 'flex-start'; /* Usually content flows from top */
+    align-items: 'stretch';
     cursor: default !important; /* Ensure the cursor does not change to a pointer */
     pointer-events: auto !important; /* Ensure panel itself can receive events */
     background-color: white !important; /* Ensure solid background */
@@ -66,8 +69,8 @@
 
 /* Ensure the content area within the enlarged panel can scroll */
 .panel-enlarged .detailed-content-area {
-    padding: 20px; /* Add padding inside the content area */
-    padding-top: 45px; /* Extra padding at the top for title/close button */
+    padding: 10px; /* Add padding inside the content area */
+    /* padding-top: 45px; Extra padding at the top for title/close button */
     overflow-y: auto;
     flex-grow: 1; /* Allow content to take available space */
     height: 100%; /* Necessary for some browsers to respect flex-grow with overflow */

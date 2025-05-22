@@ -59,7 +59,7 @@ function renderSmallPieChart(containerElement, data) {
     if (!data || data.length === 0) {
         containerElement.innerHTML = `
             <div class="portfolio-empty-state" style="display:flex; flex-direction:column; height:100%;">
-                <h3 class="font-semibold text-gray-700 mb-4 text-center p-2" style="flex-shrink:0;">Portfolio Breakdown</h3>
+                <h3 class="font-semibold text-gray-700 mb-4 text-center p-2" style="flex-shrink:0;">Portfolio</h3>
                 <div class="portfolio-message-container" style="display:flex; justify-content:center; align-items:center; flex-grow:1;">
                     <p class="normal-text mb-4">No investments to display.</p>
                 </div>
@@ -73,7 +73,7 @@ function renderSmallPieChart(containerElement, data) {
     containerElement.innerHTML = ""; // Clear all previous content
 
     const title = document.createElement("h3");
-    title.textContent = "Portfolio Breakdown";
+    title.textContent = "Portfolio";
     title.className = "font-semibold text-gray-700 text-center p-2";
     containerElement.appendChild(title);
 
@@ -175,59 +175,91 @@ function renderSmallPieChart(containerElement, data) {
         });
 }
 
-function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
+function renderInteractivePieChart(chartContainerId, legendContainerId, data, previouslySelectedLabel = null) { // Added previouslySelectedLabel
     if (typeof d3 === 'undefined') { console.error("D3 library is not loaded."); return; }
 
     const chartDiv = document.getElementById(chartContainerId);
     const legendDiv = document.getElementById(legendContainerId);
+
+    // Assume 'budget' is a global variable, accessible here.
+    // Ensure 'budget' is defined, e.g., in main.js: let budget = 100000;
+    // Ensure 'investments' is defined, e.g., in main.js: let investments = {};
 
     if (!chartDiv || !legendDiv) {
         console.error("Chart or Legend container not found for interactive pie chart.");
         return;
     }
 
+    // Ensure legendDiv itself is a flex container to manage top/bottom sections
+    legendDiv.style.display = "flex";
+    legendDiv.style.flexDirection = "column";
+    legendDiv.style.height = "100%"; // Ensure it takes full height to allow content centering
+
     d3.select(chartDiv).select("svg").remove();
-    legendDiv.innerHTML = "";
+    
+    const capitalDisplayHTMLBase = () => `
+        <div class="legend-capital-display font-semibold normal-text mb-2 mt-2">
+            Current Capital: $${d3.format(",.2f")(typeof budget !== 'undefined' ? budget : 0)}
+        </div>
+    `;
+
+    // This wrapper will center the content passed to it, and it will grow to fill available space
+    const legendContentWrapper = (content) => `
+        <div class="legend-main-content-wrapper" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow-y: auto;">
+            ${content}
+        </div>
+    `;
 
     if (!data || data.length === 0) {
         chartDiv.innerHTML = "<p class='normal-text text-center p-4'>No investments to display.</p>";
-        legendDiv.innerHTML = "<p class='normal-text text-center'>Make an investment to see the chart.</p>";
+        legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='normal-text p-4'>Make an investment to see the chart.</p>");
         return;
     }
 
     const chartRect = chartDiv.getBoundingClientRect();
-    const width = chartRect.width > 50 ? chartRect.width : 400;
-    const height = chartRect.height > 50 ? chartRect.height : 350;
-    const radius = Math.min(width, height) / 2 - 20;
+    
+    let width = chartRect.width;
+    let height = chartRect.height;
 
-    if (width <= 0 || height <= 0 || radius <= 0) {
-        console.warn("Interactive pie chart container too small.", chartRect);
-        chartDiv.innerHTML = "<p class='text-gray-500'>Chart area too small to render.</p>";
+    const MIN_CHART_DIMENSION = 50;
+    if (width < MIN_CHART_DIMENSION || height < MIN_CHART_DIMENSION) {
+        chartDiv.innerHTML = "<p class='text-xs text-gray-500 text-center p-1'>Chart area too small</p>";
+        legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='text-xs text-gray-500 p-1'>Chart area too small to display details.</p>");
         return;
     }
-    chartDiv.innerHTML = "";
+    
+    chartDiv.innerHTML = ""; 
+    // legendDiv.innerHTML = ""; // Will be populated by capital + wrapped content
 
-    let selectedPath = null; // To keep track of the selected path
+    const marginForRadius = Math.min(width, height) * 0.1;
+    let radius = Math.min(width, height) / 2 - marginForRadius;
+
+    if (width <= 0 || height <= 0 || radius <= 0) {
+        console.warn("Interactive pie chart dimensions or radius invalid.", {width, height, radius, chartRect});
+        chartDiv.innerHTML = "<p class='text-xs text-gray-500 text-center p-1'>Chart cannot be rendered (size issue).</p>";
+        return;
+    }
+
+    let selectedPath = null;
 
     const svg = d3.select(chartDiv)
         .append("svg")
-        .attr("width", width)
-        .attr("height", height)
+        .attr("width", 0.95*width)
+        .attr("height", 0.95*height)
         .append("g")
         .attr("transform", `translate(${width / 2},${height / 2})`);
 
-    // Add a background rectangle for capturing clicks outside the pie
     svg.append("rect")
         .attr("width", width)
         .attr("height", height)
-        .attr("transform", `translate(${-width / 2},${-height / 2})`) // Adjust to cover the g's area
+        .attr("transform", `translate(${-width / 2},${-height / 2})`)
         .style("fill", "none")
         .style("pointer-events", "all")
         .on("click", function() {
             if (selectedPath) {
                 paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
                 selectedPath = null;
-                legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
+                legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
             }
         });
 
@@ -235,11 +267,11 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
     const arcGen = d3.arc().innerRadius(radius * 0.5).outerRadius(radius);
     const arcHover = d3.arc().innerRadius(radius * 0.5).outerRadius(radius * 1.05);
 
-    const paths = svg.selectAll("path.slice") // Added .slice class for specificity
+    const paths = svg.selectAll("path.slice")
         .data(pie(data))
         .enter()
         .append("path")
-        .attr("class", "slice") // Added .slice class
+        .attr("class", "slice")
         .attr("d", arcGen)
         .attr("fill", d => d.data.color)
         .attr("stroke", "#fff")
@@ -248,26 +280,162 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
         .style("transition", "opacity 0.3s ease, transform 0.3s ease");
 
     function updateLegend(d) {
-        legendDiv.innerHTML = `
+        const detailsHTML = `
             <h5 class="font-semibold normal-text mb-1" style="color:${d.data.color};">${d.data.label}</h5>
             <p class="small-text">Value: $${d3.format(",.2f")(d.data.value)}</p>
             <p class="small-text">Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
         `;
+        legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper(detailsHTML);
     }
 
     function updateLegendSelected(d) {
-        legendDiv.innerHTML = `
-            <h4 class="font-bold text-xl mb-2" style="color:${d.data.color};">${d.data.label}</h4>
-            <p>Value: ${d3.format(",.2f")(d.data.value)}</p>
-            <p>Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
-            <button id="clear-pie-selection" class="mt-3 px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>
+        const currentInvestmentValue = d.data.value;
+        let detailsAndInteractionsHTML = `
+            <h4 class="font-bold text-lg mb-1" style="color:${d.data.color};">${d.data.label}</h4>
+            <p class="small-text mb-2">Invested: $${d3.format(",.2f")(currentInvestmentValue)}</p>
+            <p class="small-text mb-2">Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
         `;
-        d3.select("#clear-pie-selection").on("click", (event) => {
-            event.stopPropagation(); // Prevent click from bubbling to the background rect
-            paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
-            selectedPath = null;
-            legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
-        });
+
+        // Sell Section (only if not "Others")
+        if (!d.data.isOther) {
+            detailsAndInteractionsHTML += `
+            <div class="interaction-section w-full mt-3 pt-3 border-t border-gray-200">
+                <p class="small-text font-semibold mb-1">Sell ${d.data.label} shares:</p>
+                <div class="flex items-center space-x-2 mb-2">
+                    <input type="range" id="sell-percentage-slider" min="0" max="100" value="10" class="flex-grow h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <span id="sell-percentage-value" class="small-text w-10 text-right">10%</span>
+                </div>
+                <button id="sell-button" class="w-full px-3 py-1 bg-red-500 normal-text-white rounded hover:bg-red-600 focus:outline-none">
+                    Sell <span id="sell-amount-display">$${d3.format(",.2f")(currentInvestmentValue * 0.10)}</span>
+                </button>
+            </div>
+        `;
+        }
+        
+        // TODO: make that the two buttons have the same size
+        // Invest Section (only if not "Others")
+        if (!d.data.isOther) {
+            detailsAndInteractionsHTML += `
+                <div class="interaction-section w-full mt-3 pt-3 border-t border-gray-200">
+                    <p class="small-text font-semibold mb-1">Invest in ${d.data.label}:</p>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="small-text">$</span>
+                        <input type="number" id="invest-amount-input" min="0" step="100" placeholder="Amount" class="flex-grow small-text p-1 border rounded w-full">
+                    </div>
+                    <button id="invest-button" class="w-full px-3 py-1 bg-green-500 normal-text-white rounded hover:bg-green-600 focus:outline-none">Invest</button>
+                </div>
+            `;
+        }
+
+        detailsAndInteractionsHTML += `<button id="clear-pie-selection" class="mt-8 w-full px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>`;
+        
+        legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper(detailsAndInteractionsHTML);
+
+        // Event Listeners for interaction elements
+        const sellSlider = document.getElementById('sell-percentage-slider');
+        const sellPercentageValue = document.getElementById('sell-percentage-value');
+        const sellAmountDisplay = document.getElementById('sell-amount-display');
+
+        if (sellSlider) {
+            sellSlider.addEventListener('input', function() {
+                const percentage = parseFloat(this.value);
+                sellPercentageValue.textContent = `${percentage.toFixed(0)}%`;
+                const sellValue = currentInvestmentValue * (percentage / 100);
+                sellAmountDisplay.textContent = `$${d3.format(",.2f")(sellValue)}`;
+            });
+        }
+
+        const sellButton = document.getElementById('sell-button');
+        if (sellButton) {
+            sellButton.addEventListener('click', function() {
+                const percentageToSell = parseFloat(sellSlider.value);
+                if (isNaN(percentageToSell) || percentageToSell < 0 || percentageToSell > 100) {
+                    alert("Invalid percentage to sell.");
+                    return;
+                }
+                if (percentageToSell === 0) return; // Nothing to sell
+
+                const amountToSell = currentInvestmentValue * (percentageToSell / 100);
+                const selectedLabel = d.data.label; // Capture label before modification
+
+                if (d.data.isOther) {
+                    const totalOriginalOthersValue = d.data.value;
+                    if (totalOriginalOthersValue > 0 && d.data.others_dict && Array.isArray(d.data.others_dict)) {
+                        let totalAmountActuallySoldFromOthers = 0;
+                        for (const otherItem of d.data.others_dict) {
+                            const stateName = otherItem.label;
+                            const investmentInThisState = investments[stateName] || 0;
+                            if (investmentInThisState > 0) {
+                                const proportionInOriginalOthers = (otherItem.value / totalOriginalOthersValue);
+                                let sellFromThisState = amountToSell * proportionInOriginalOthers;
+                                sellFromThisState = Math.min(sellFromThisState, investmentInThisState); // Cap at current investment
+
+                                if (sellFromThisState > 0) {
+                                    investments[stateName] -= sellFromThisState;
+                                    budget += sellFromThisState;
+                                    totalAmountActuallySoldFromOthers += sellFromThisState;
+                                    if (investments[stateName] < 0.01) delete investments[stateName];
+                                }
+                            }
+                        }
+                    } else {
+                        console.warn("Cannot process selling from 'Others': data missing or zero value.");
+                    }
+                } else { // Selling from a specific, non-"Other" state
+                    const stateName = d.data.label;
+                    if (investments[stateName] && amountToSell > 0) {
+                        const actualAmountToSell = Math.min(amountToSell, investments[stateName]);
+                        investments[stateName] -= actualAmountToSell;
+                        budget += actualAmountToSell;
+                        if (investments[stateName] < 0.01) delete investments[stateName];
+                    } else if (amountToSell > 0) {
+                        console.error("Investment not found or already zero for selling:", stateName);
+                        return;
+                    }
+                }
+
+                if (typeof updateInvestmentMetrics === 'function') updateInvestmentMetrics();
+                const newData = getInvestmentPieData();
+                renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
+            });
+        }
+
+        const investButton = document.getElementById('invest-button');
+        const investAmountInput = document.getElementById('invest-amount-input');
+
+        if (investButton && investAmountInput && !d.data.isOther) {
+            investButton.addEventListener('click', function() {
+                const amountToInvest = parseFloat(investAmountInput.value);
+                if (isNaN(amountToInvest) || amountToInvest <= 0) {
+                    alert("Please enter a valid positive amount to invest.");
+                    return;
+                }
+                if (amountToInvest > budget) {
+                    alert("Not enough budget to make this investment. Available: $" + d3.format(",.2f")(budget));
+                    return;
+                }
+
+                const stateName = d.data.label;
+                const selectedLabel = d.data.label; // Capture label before modification
+
+                investments[stateName] = (investments[stateName] || 0) + amountToInvest;
+                budget -= amountToInvest;
+
+                if (typeof updateInvestmentMetrics === 'function') updateInvestmentMetrics();
+                const newData = getInvestmentPieData();
+                renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
+            });
+        }
+        
+        const clearPieButton = document.getElementById('clear-pie-selection');
+        if (clearPieButton) {
+            clearPieButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
+                selectedPath = null;
+                legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+            });
+        }
     }
 
     paths.on("mouseover", function (event, d) {
@@ -279,18 +447,18 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
     .on("mouseout", function (event, d) {
         if (!selectedPath) {
             d3.select(this).transition().duration(150).attr("d", arcGen);
-            legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
+            legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
         }
     })
     .on("click", function (event, d) {
-        event.stopPropagation(); // Prevent click from bubbling to the background rect
+        event.stopPropagation(); 
         const clickedPath = this;
 
-        if (selectedPath === clickedPath) { // Clicked the same selected slice
+        if (selectedPath === clickedPath) { 
             paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
             selectedPath = null;
-            legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
-        } else { // Clicked a new slice or the first slice
+            legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+        } else { 
             selectedPath = clickedPath;
             paths.each(function(p_d) {
                 const currentPath = d3.select(this);
@@ -304,7 +472,35 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
         }
     });
 
-    legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
+    // legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+    // Logic to handle re-selection or default legend display
+    if (previouslySelectedLabel) {
+        let foundAndSelected = false;
+        paths.each(function(p_d) {
+            if (p_d.data.label === previouslySelectedLabel) {
+                selectedPath = this; // Update the selectedPath to the new DOM element
+
+                // Apply visual styles for selection
+                paths.each(function() {
+                    const currentPath = d3.select(this);
+                    if (this === selectedPath) {
+                        currentPath.transition().duration(150).attr("d", arcHover).style("opacity", 1);
+                    } else {
+                        currentPath.transition().duration(150).attr("d", arcGen).style("opacity", 0.8);
+                    }
+                });
+                updateLegendSelected(p_d); // Update legend with the new data for this path
+                foundAndSelected = true;
+            }
+        });
+        if (!foundAndSelected) { // If the previously selected item no longer exists (e.g., sold out)
+            selectedPath = null;
+            legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+        }
+    } else {
+        // Default legend if nothing was pre-selected
+        legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper("<p class='small-text p-2'>Hover over or click a slice to see details.</p>");
+    }
 }
 
 // --- End of pie_chart.js ---

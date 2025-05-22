@@ -20,20 +20,20 @@ function getOrCreateBackdrop() {
     return backdrop;
 }
 
-function addCloseButtonToEnlarged(panelElement, panelConfig) {
-    let existingCloseButton = panelElement.querySelector('.close-enlarged-button');
+function addCloseButtonToEnlarged(buttonContainer, panelToToggle, configForToggle) {
+    let existingCloseButton = buttonContainer.querySelector('.close-enlarged-button');
     if (existingCloseButton) existingCloseButton.remove();
 
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '&times;';
-    closeButton.className = 'close-enlarged-button absolute top-3 right-3 text-2xl leading-none bg-gray-700 hover:bg-gray-900 text-white rounded-full w-8 h-8 flex items-center justify-center cursor-pointer focus:outline-none';
+    closeButton.className = 'close-enlarged-button mr-1 absolute top-2 right-2 text-2xl leading-none bg-gray-700 hover:bg-gray-900 text-white rounded-full w-8 h-8 flex items-center justify-center cursor-pointer focus:outline-none';
     closeButton.style.zIndex = '1005';
     closeButton.setAttribute('aria-label', 'Close dialog');
     closeButton.onclick = function(event) {
         event.stopPropagation();
-        togglePanelEnlargement(panelElement, panelConfig);
+        togglePanelEnlargement(panelToToggle, configForToggle);
     };
-    panelElement.appendChild(closeButton);
+    buttonContainer.appendChild(closeButton);
 }
 
 function storeAndHideOriginalContent(panelElement, panelConfig) {
@@ -97,9 +97,6 @@ function togglePanelEnlargement(panelElement, panelConfig) {
 
         restoreOriginalContent(panelElement, panelConfig);
 
-        const closeButton = panelElement.querySelector('.close-enlarged-button');
-        if (closeButton) closeButton.remove();
-
         backdrop.style.display = 'none';
         document.body.style.overflow = '';
         activePanelConfig = null; // Clear active config
@@ -121,39 +118,38 @@ function togglePanelEnlargement(panelElement, panelConfig) {
         }
 
         panelElement.classList.add('panel-enlarged');
-        Object.assign(panelElement.style, {
-            position: 'fixed', left: '50%', top: '50%',
-            width: '80vw', height: '80vh',
-            transform: 'translate(-50%, -50%)',
-            zIndex: '10001',
-            display: 'flex', // Ensure flex for content alignment
-            flexDirection: 'column',
-            justifyContent: 'flex-start', // Usually content flows from top
-            alignItems: 'stretch' // Stretch content horizontally
-        });
 
         storeAndHideOriginalContent(panelElement, panelConfig);
 
         const detailedContentArea = document.createElement('div');
-        detailedContentArea.className = 'detailed-content-area w-full h-full flex flex-col overflow-auto p-4'; // Added padding
+        detailedContentArea.className = 'detailed-content-area w-full h-full flex flex-col overflow-auto pt-1000'; 
         panelElement.appendChild(detailedContentArea);
+
+        // Create a header container for title and close button
+        const headerContainer = document.createElement('div');
+        headerContainer.className = 'enlarged-panel-header flex justify-between items-center w-full p-3 mb-1 shrink-0'; // Added padding
+        headerContainer.style.position = 'relative'; // For absolute positioning of the close button
 
         if (panelConfig.enlargedTitle) {
             const titleElement = document.createElement('h4');
-            titleElement.className = 'enlarged-panel-dynamic-title text-xl font-semibold text-gray-700 text-center shrink-0';
+            titleElement.className = 'enlarged-panel-dynamic-title text-xl text-center font-semibold text-gray-700 flex-grow'; // Removed text-center, mb-2
             titleElement.textContent = panelConfig.enlargedTitle;
-            detailedContentArea.appendChild(titleElement); // Add title to detailed area
+            headerContainer.appendChild(titleElement);
         }
+        
+        // Add close button to the header container.
+        // panelElement and panelConfig are passed for the button's click handler.
+        addCloseButtonToEnlarged(headerContainer, panelElement, panelConfig);
+        
+        detailedContentArea.appendChild(headerContainer); // Add header to detailed area
 
         if (panelConfig.renderDetailedView) {
-            // Create a dedicated container within detailedContentArea for the chart/content itself
             const chartContainer = document.createElement('div');
-            chartContainer.className = 'flex-grow'; // Allows this to take remaining space
+            chartContainer.className = 'flex-grow relative'; // Added relative for potential children, and flex-grow
             detailedContentArea.appendChild(chartContainer);
             panelConfig.renderDetailedView(chartContainer, panelConfig.id);
         }
 
-        addCloseButtonToEnlarged(panelElement, panelConfig);
         backdrop.style.display = 'block';
         document.body.style.overflow = 'hidden';
     }

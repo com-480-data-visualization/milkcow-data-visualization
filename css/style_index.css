@@ -218,6 +218,13 @@ canvas {
     line-height: 1.5;
 }
 
+.normal-text-white {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    color: #ffffff; /* White text */
+    line-height: 1.5;
+}
+
 .small-text {
     font-family: 'Quicksand', sans-serif;
     font-size: 0.9rem;
