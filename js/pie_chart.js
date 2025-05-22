@@ -20,19 +20,29 @@ function getInvestmentPieData() {
     // Calculate the sum of remaining states
     const otherInvestmentSum = sortedInvestments.slice(9).reduce((sum, [, amount]) => sum + amount, 0);
 
+    // If there are no other investments, we don't need to add "Others" category
+    const otherInvestmentData = sortedInvestments.slice(9).map(([stateName, amount]) => ({
+        label: stateName,
+        value: amount,
+    }));
+
     // Map the top 9 states to the pie chart data format
     const pieData = topInvestments.map(([stateName, amount], index) => ({
         label: stateName,
         value: amount,
-        color: colors(index) // Assign color based on index
+        color: colors(index), // Assign color based on index
+        isOther: false, // Optional flag to identify "Other" category
+        others_dict: {} // Placeholder for any additional data if needed
     }));
 
     // Add the "Other" category if there are remaining states
     if (otherInvestmentSum > 0) {
         pieData.push({
-            label: "Other",
+            label: "Others",
             value: otherInvestmentSum,
-            color: colors(9) // Assign the 10th color to "Other"
+            color: colors(9), // Assign the 10th color to "Other"
+            isOther: true, // Optional flag to identify "Other" category
+            others_dict: otherInvestmentData
         });
     }
 
@@ -42,13 +52,6 @@ function getInvestmentPieData() {
 // --- D3 Pie Chart Rendering Functions ---
 function renderSmallPieChart(containerElement, data) {
     if (typeof d3 === 'undefined') { console.error("D3 library is not loaded."); return; }
-
-    // Ensure containerElement can act as a positioning context for the tooltip
-    // This should ideally be done via CSS, but can be forced here if necessary.
-    // e.g., if (!containerElement.style.position || containerElement.style.position === 'static') {
-    //     containerElement.style.position = 'relative';
-    // }
-
 
     d3.select(containerElement).select("svg").remove(); // Clear previous SVG
     d3.select(containerElement).select(".custom-d3-tooltip").remove(); // Clear previous tooltip
@@ -65,27 +68,24 @@ function renderSmallPieChart(containerElement, data) {
         return;
     }
 
+    // Compute dimensions for the svg container
     const containerRect = containerElement.getBoundingClientRect();
-    // console.log("Container dimensions:", containerRect);
-
     containerElement.innerHTML = ""; // Clear all previous content
 
     const title = document.createElement("h3");
     title.textContent = "Portfolio Breakdown";
-    title.className = "font-semibold text-gray-700 text-center p-2"; // Using Tailwind
-    // title.style.marginBottom = '8px'; // Or use CSS
+    title.className = "font-semibold text-gray-700 text-center p-2";
     containerElement.appendChild(title);
 
     const titleHeight = title.getBoundingClientRect().height;
-    // console.log("Title height:", titleHeight);
-    const chartAreaHeight = containerRect.height - titleHeight - (parseFloat(getComputedStyle(title).paddingTop) + parseFloat(getComputedStyle(title).paddingBottom) + parseFloat(getComputedStyle(title).marginBottom) || 0 );
+    const chartAreaHeight = containerRect.height - titleHeight - (parseFloat(getComputedStyle(title).paddingTop) + parseFloat(getComputedStyle(title).paddingBottom) + parseFloat(getComputedStyle(title).marginBottom) || 0);
 
 
     const width = containerRect.width > 20 ? containerRect.width : 120;
     const height = chartAreaHeight > 20 ? chartAreaHeight : 120;
 
     const minSvgDimension = Math.min(width, height);
-    const radiusPadding = minSvgDimension > 100 ? 10 : (minSvgDimension > 40 ? 5: 2); // Adjusted padding for very small charts
+    const radiusPadding = minSvgDimension > 100 ? 10 : (minSvgDimension > 40 ? 5 : 2); // Adjusted padding for very small charts
     let radius = minSvgDimension / 2 - radiusPadding;
 
     if (radius <= 0) { // Prevent negative or zero radius
@@ -121,7 +121,6 @@ function renderSmallPieChart(containerElement, data) {
         .attr("fill", d => d.data.color)
         .attr("stroke", "white")
         .style("stroke-width", "1px")
-        .style("cursor", "pointer") // Indicate interactivity
         .on("mouseover", function (event, d) {
             // d3.select(this)
             //     .transition()
@@ -154,7 +153,7 @@ function renderSmallPieChart(containerElement, data) {
                 //     left = x - ttWidth - 15; // Move to left of cursor
                 // }
                 if (top - ttHeight < 0 && y + ttHeight + 15 < containerRect.height) { // If moving above goes out of bounds, try below
-                     top = y + 15;
+                    top = y + 15;
                 } else if (top < 0) { // Still out of bounds (top)
                     top = 5; // Pin to top edge
                 }
@@ -162,7 +161,7 @@ function renderSmallPieChart(containerElement, data) {
             }
 
             tooltip.style("left", `${left}px`)
-                   .style("top", `${top}px`);
+                .style("top", `${top}px`);
         })
         .on("mouseout", function () {
             // d3.select(this)
@@ -201,12 +200,14 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
     const height = chartRect.height > 50 ? chartRect.height : 350;
     const radius = Math.min(width, height) / 2 - 20;
 
-    if (width <= 0 || height <= 0 || radius <=0) {
+    if (width <= 0 || height <= 0 || radius <= 0) {
         console.warn("Interactive pie chart container too small.", chartRect);
         chartDiv.innerHTML = "<p class='text-gray-500'>Chart area too small to render.</p>";
         return;
     }
     chartDiv.innerHTML = "";
+
+    let selectedPath = null; // To keep track of the selected path
 
     const svg = d3.select(chartDiv)
         .append("svg")
@@ -215,62 +216,95 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data) {
         .append("g")
         .attr("transform", `translate(${width / 2},${height / 2})`);
 
+    // Add a background rectangle for capturing clicks outside the pie
+    svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("transform", `translate(${-width / 2},${-height / 2})`) // Adjust to cover the g's area
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .on("click", function() {
+            if (selectedPath) {
+                paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
+                selectedPath = null;
+                legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
+            }
+        });
+
     const pie = d3.pie().value(d => d.value).sort(null);
     const arcGen = d3.arc().innerRadius(radius * 0.5).outerRadius(radius);
     const arcHover = d3.arc().innerRadius(radius * 0.5).outerRadius(radius * 1.05);
 
-    const paths = svg.selectAll("path")
+    const paths = svg.selectAll("path.slice") // Added .slice class for specificity
         .data(pie(data))
         .enter()
         .append("path")
+        .attr("class", "slice") // Added .slice class
         .attr("d", arcGen)
         .attr("fill", d => d.data.color)
         .attr("stroke", "#fff")
         .style("stroke-width", "2px")
         .style("cursor", "pointer")
-        .style("transition", "opacity 0.3s ease, transform 0.3s ease")
-        .on("mouseover", function(event, d) {
-            d3.select(this).transition().duration(150).attr("d", arcHover);
-            legendDiv.innerHTML = `
-                <h5 class="font-semibold text-lg mb-1" style="color:${d.data.color};">${d.data.label}</h5>
-                <p class="text-sm">Value: ${d3.format(",.2f")(d.data.value)}</p>
-                <p class="text-sm">Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
-            `;
-        })
-        .on("mouseout", function(event, d) {
-            if (!d3.select(this).classed("selected-slice")) {
-                d3.select(this).transition().duration(150).attr("d", arcGen);
-            }
-        })
-        .on("click", function(event, d) {
-            const alreadySelected = d3.select(this).classed("selected-slice");
-            paths.classed("selected-slice", false)
-                 .transition().duration(150).attr("d", arcGen).style("opacity", 0.7);
+        .style("transition", "opacity 0.3s ease, transform 0.3s ease");
 
-            if (alreadySelected) {
-                paths.style("opacity", 1);
-                legendDiv.innerHTML = "<p class='text-gray-500 text-sm'>Hover or click a slice.</p>";
-            } else {
-                d3.select(this)
-                    .classed("selected-slice", true)
-                    .transition().duration(150)
-                    .attr("d", arcHover)
-                    .style("opacity", 1);
+    function updateLegend(d) {
+        legendDiv.innerHTML = `
+            <h5 class="font-semibold normal-text mb-1" style="color:${d.data.color};">${d.data.label}</h5>
+            <p class="small-text">Value: $${d3.format(",.2f")(d.data.value)}</p>
+            <p class="small-text">Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
+        `;
+    }
 
-                legendDiv.innerHTML = `
-                    <h4 class="font-bold text-xl mb-2" style="color:${d.data.color};">${d.data.label}</h4>
-                    <p>Value: ${d3.format(",.2f")(d.data.value)}</p>
-                    <p>Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
-                    <button id="clear-pie-selection" class="mt-3 px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>
-                `;
-                d3.select("#clear-pie-selection").on("click", () => {
-                    paths.classed("selected-slice", false)
-                         .transition().duration(150).attr("d", arcGen).style("opacity", 1);
-                    legendDiv.innerHTML = "<p class='text-gray-500 text-sm'>Hover or click a slice.</p>";
-                });
-            }
+    function updateLegendSelected(d) {
+        legendDiv.innerHTML = `
+            <h4 class="font-bold text-xl mb-2" style="color:${d.data.color};">${d.data.label}</h4>
+            <p>Value: ${d3.format(",.2f")(d.data.value)}</p>
+            <p>Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
+            <button id="clear-pie-selection" class="mt-3 px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>
+        `;
+        d3.select("#clear-pie-selection").on("click", (event) => {
+            event.stopPropagation(); // Prevent click from bubbling to the background rect
+            paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
+            selectedPath = null;
+            legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
         });
-    legendDiv.innerHTML = "<p class='text-gray-500 text-sm text-center'>Hover over or click a slice to see details.</p>";
+    }
+
+    paths.on("mouseover", function (event, d) {
+        if (!selectedPath) {
+            d3.select(this).transition().duration(150).attr("d", arcHover);
+            updateLegend(d);
+        }
+    })
+    .on("mouseout", function (event, d) {
+        if (!selectedPath) {
+            d3.select(this).transition().duration(150).attr("d", arcGen);
+            legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
+        }
+    })
+    .on("click", function (event, d) {
+        event.stopPropagation(); // Prevent click from bubbling to the background rect
+        const clickedPath = this;
+
+        if (selectedPath === clickedPath) { // Clicked the same selected slice
+            paths.transition().duration(150).attr("d", arcGen).style("opacity", 1);
+            selectedPath = null;
+            legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
+        } else { // Clicked a new slice or the first slice
+            selectedPath = clickedPath;
+            paths.each(function(p_d) {
+                const currentPath = d3.select(this);
+                if (this === clickedPath) {
+                    currentPath.transition().duration(150).attr("d", arcHover).style("opacity", 1);
+                } else {
+                    currentPath.transition().duration(150).attr("d", arcGen).style("opacity", 0.8);
+                }
+            });
+            updateLegendSelected(d);
+        }
+    });
+
+    legendDiv.innerHTML = "<p class='small-text text-center'>Hover over or click a slice to see details.</p>";
 }
 
 // --- End of pie_chart.js ---

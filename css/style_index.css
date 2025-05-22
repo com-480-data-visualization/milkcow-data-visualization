@@ -218,6 +218,13 @@ canvas {
     line-height: 1.5;
 }
 
+.small-text {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    color: #4b5563; /* Tailwind's gray-600 */
+    line-height: 1.5;
+}
+
 /* Event markers and tooltips */
 .event-marker {
     cursor: pointer;

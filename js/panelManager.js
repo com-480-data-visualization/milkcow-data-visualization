@@ -140,7 +140,7 @@ function togglePanelEnlargement(panelElement, panelConfig) {
 
         if (panelConfig.enlargedTitle) {
             const titleElement = document.createElement('h4');
-            titleElement.className = 'enlarged-panel-dynamic-title text-xl font-semibold p-3 text-center shrink-0';
+            titleElement.className = 'enlarged-panel-dynamic-title text-xl font-semibold text-gray-700 text-center shrink-0';
             titleElement.textContent = panelConfig.enlargedTitle;
             detailedContentArea.appendChild(titleElement); // Add title to detailed area
         }
