@@ -75,6 +75,26 @@ function getRankingDataForYear(year) {
     return allStatesData.sort((a, b) => b.production - a.production);
 }
 
+function renderMiniGraph2(container, data, year) { // Added container param
+    if (!container) return;
+    container.innerHTML = ''; // Clear previous content
+    const title = document.createElement('h4');
+    // ... rest of the function, appending to 'container'
+}
+
+function renderDetailedRanking(container, data, availableYears, selectedYear) { // Added container param
+    if (!container) return;
+    container.innerHTML = ''; // Clear previous content
+    // ... rest of the function, creating elements and appending to 'container'
+    // ... and event listener for yearSelect should re-render within this container.
+    const yearSelect = container.querySelector('#year-select'); // Ensure ID is unique if multiple instances exist or scope selector
+    yearSelect.addEventListener('change', () => {
+        const newYear = currentYear;
+        const newData = getRankingDataForYear(newYear);
+        renderDetailedRanking(container, newData, availableYears, newYear); // Recursive call to re-render in same container
+    });
+}
+
 // Example usage
 // renderMiniGraph2('miniGraph2-container', getRankingDataForYear(2025), 2025);
 // renderDetailedRanking('detailed-ranking-container', getRankingDataForYear(2025), [2023, 2024, 2025], 2025);

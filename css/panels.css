@@ -1,6 +1,6 @@
 /* Merged panel styles from style_index.css into panels.css */
 
-.mini-graph-placeholder, .large-graph-placeholder {
+.panel-placeholder{
     /* border: 1px solid #F9F7F5; Match the main panel border color */
     border-radius: 0.5rem; /* Rounded corners */
     background-color: rgba(255, 255, 255, 0.96); /* Slightly transparent white background */
@@ -14,19 +14,21 @@
     text-align: center;
     color: #6b7280; /* Tailwind's gray-500 */
     border: 1px #d1d5db;
-    height: 10rem; /* Default height for mini-graph placeholders */
+    height: 20rem; /* Default height for mini-graph placeholders */
 }
 
-.large-graph-placeholder {
-    height: 15rem; /* Default height for large-graph placeholders */
+.centered-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ensure the container has a height */
 }
 
-.mini-graph-placeholder svg, .large-graph-placeholder svg {
-    width: 100%;
-    height: 100%;
+.large-panel {
+    height: 30rem; /* Default height for large-graph placeholders */
 }
 
-.mini-graph-placeholder::before, .large-graph-placeholder::before {
+.panel-placeholder::before {
     content: "";
     position: absolute;
     top: 0;
@@ -39,7 +41,7 @@
     pointer-events: none; /* Allow clicks to pass through */
 }
 
-.mini-graph-placeholder:hover, .large-graph-placeholder:hover {
+.panel-placeholder:hover {
     box-shadow: 0 6px 8px -2px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2); /* Slightly stronger shadow on hover */
     cursor: pointer; /* Indicate clickability */
 }
@@ -89,4 +91,39 @@
     z-index: 9999 !important; /* Below the panel but above everything else, increased z-index and added !important */
     display: none; /* Hidden by default */
     /* pointer-events: none; Remove this or set to auto if clicks on backdrop should close modal via JS */
+}
+
+/* Style for pie chart */
+.portfolio-empty-state {
+    display: flex; /* Use flexbox for the overall container */
+    flex-direction: column; /* Stack title and message container vertically */
+    height: 100%; /* Ensure the main container takes full height */
+    width: 100%; /* Ensure the main container takes full width */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.portfolio-message-container {
+    display: flex;
+    justify-content: center; /* Horizontally center the paragraph */
+    align-items: center;    /* Vertically center the paragraph */
+    flex-grow: 1;           /* Allow this container to take up remaining vertical space */
+    text-align: center;     /* Ensure text within the paragraph is centered if it wraps */
+    overflow: auto; /* In case the message is very long, though unlikely for this specific text */
+}
+
+.custom-d3-tooltip {
+    position: absolute; /* Crucial for positioning next to the cursor */
+    opacity: 0; /* Start hidden */
+    background-color: rgba(17, 24, 39, 0.85); /* Dark background (Tailwind gray-900 at 85% opacity) */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    pointer-events: none; /* The tooltip itself should not capture mouse events */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: opacity 0.15s ease-in-out; /* Smooth fade */
+    z-index: 1070; /* High z-index to appear on top */
+    white-space: nowrap; /* Keep content on one line unless <br> is used */
 }

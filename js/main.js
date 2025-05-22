@@ -1,3 +1,9 @@
+// To use if we decide to make a module out of this
+// import { registerPanel, initPanels } from './panelManager.js';
+// import { investmentPieChartPanelConfig } from './panelModules/investmentPieChartPanel.js';
+// import { milkRankingPanelConfig } from './panelModules/milkRankingPanel.js';
+// import { capitalEvolutionPanelConfig } from './panelModules/capitalEvolutionPanel.js';
+
 const svg = d3.select("#us-map");
 const width = 960;
 const height = 600;
@@ -30,6 +36,12 @@ document.addEventListener('DOMContentLoaded', function() {
     updateYear();
     updateBudget();
     updateInvestmentMetric();
+
+    // Investor's panel init
+    registerPanel(investmentPieChartPanelConfig);
+    registerPanel(milkRankingPanelConfig);
+    registerPanel(capitalEvolutionPanelConfig);
+    initPanels();
 
     // Tab switching functionality
     const tabGame = document.getElementById('tab-game');
