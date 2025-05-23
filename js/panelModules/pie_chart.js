@@ -131,7 +131,7 @@ function renderSmallPieChart(containerElement, data) {
                 .duration(100)
                 .style("opacity", 1); // Fade in tooltip
 
-            tooltip.html(`<p>${d.data.label}: $${d3.format(",.2f")(d.data.value)}</p>`);
+            tooltip.html(`<p>${d.data.label}: $${formatDollar(d.data.value)}</p>`);
         })
         .on("mousemove", function (event) {
             // Get coordinates relative to the containerElement
@@ -199,7 +199,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
 
     const capitalDisplayHTMLBase = () => `
         <div class="legend-capital-display font-semibold normal-text mb-2 mt-2">
-            Current Liquidity: $${d3.format(",.2f")(typeof budget !== 'undefined' ? budget : 0)}
+            Current Liquidity: $${formatDollar(typeof budget !== 'undefined' ? budget : 0)}
         </div>
     `;
 
@@ -282,7 +282,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
     function updateLegend(d) {
         const detailsHTML = `
             <h5 class="font-semibold normal-text mb-1" style="color:${d.data.color};">${d.data.label}</h5>
-            <p class="small-text">Value: $${d3.format(",.2f")(d.data.value)}</p>
+            <p class="small-text">Value: $${formatDollar(d.data.value)}</p>
             <p class="small-text">Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
         `;
         legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper(detailsHTML);
@@ -292,7 +292,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
         const currentInvestmentValue = d.data.value;
         let detailsAndInteractionsHTML = `
             <h4 class="font-bold text-lg mb-1" style="color:${d.data.color};">${d.data.label}</h4>
-            <p class="small-text mb-2">Invested: $${d3.format(",.2f")(currentInvestmentValue)}</p>
+            <p class="small-text mb-2">Invested: $${formatDollar(currentInvestmentValue)}</p>
             <p class="small-text mb-2">Share: ${((d.data.value / d3.sum(data, item => item.value)) * 100).toFixed(1)}%</p>
         `;
 
@@ -306,7 +306,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                     <span id="pie-chart-sell-percentage-value" class="small-text w-10 text-right">10%</span>
                 </div>
                 <button id="pie-chart-sell-button" class="w-full px-3 py-1 bg-red-500 normal-text-white rounded hover:bg-red-600 focus:outline-none">
-                    Sell <span id="pie-chart-sell-amount-display">$${d3.format(",.2f")(currentInvestmentValue * 0.10)}</span>
+                    Sell <span id="pie-chart-sell-amount-display">$${formatDollar(currentInvestmentValue * 0.10)}</span>
                 </button>
             </div>
         `;
@@ -343,7 +343,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                 const percentage = parseFloat(this.value);
                 sellPercentageValue.textContent = `${percentage.toFixed(0)}%`;
                 const sellValue = currentInvestmentValue * (percentage / 100);
-                sellAmountDisplay.textContent = `$${d3.format(",.2f")(sellValue)}`;
+                sellAmountDisplay.textContent = `$${formatDollar(sellValue)}`;
             });
         }
 
@@ -372,9 +372,8 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                     return;
                 }
 
-                updateInvestmentMetric();
                 updateBudget();
-                displayInvestments(); //TODO: remove this, pie chart is enough
+                updateInvestmentMetric();
                 updateMap(stateName)
                 const newData = getInvestmentPieData();
                 renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
@@ -399,7 +398,7 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                 return;
             }
             if (amountToInvest > budget) {
-                pieShowFeedback("Not enough budget to make this investment. Available: $" + d3.format(",.2f")(budget));
+                pieShowFeedback("Not enough budget to make this investment. Available: $" + formatDollar(budget));
                 return;
             }
             if (amountToInvest < MIN_INVESTMENT) {
@@ -415,7 +414,6 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
 
             updateInvestmentMetric();
             updateBudget();
-            displayInvestments(); //TODO: remove this, pie chart is enough
             updateMap(stateName);
             investFeedback.textContent = "";
             const newData = getInvestmentPieData();

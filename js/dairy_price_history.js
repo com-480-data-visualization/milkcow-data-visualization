@@ -249,7 +249,7 @@ function renderProductPriceGraph() {
                 
                 selected.forEach((col, idx) => {
                     focus.select(`.tooltip-value-${idx}`)
-                        .text(`${col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${d3.format(",.2f")(+d[col])}`);
+                        .text(`${col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}: ${formatDollar(+d[col])}`);
                     focus.select(`.focus-circle-${idx}`)
                         .attr('cx', 0)
                         .attr('cy', y(+d[col]) - y(+d[selected[0]]));

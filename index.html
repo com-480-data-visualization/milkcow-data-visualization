@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Big Snort</title>
+    <title>The Big Snort | Online Interactive Data Visualization Webgame</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
@@ -24,25 +24,44 @@
     <div class="w-full max-w-5xl mx-auto mt-8 mb-4">
         <div id="tab-navigation" class="relative z-20 flex justify-center bg-gradient-to-r from-blue-100 via-white to-blue-100 p-2 rounded-xl shadow-md w-full panel-shape">
             <button id="tab-game" class="tab-btn px-4 py-2 font-semibold border-b-2 border-blue-500 text-blue-700">Game</button>
-            <button id="tab-visualizations" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500">Visualizations</button>
+            <button id="tab-visualizations" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500">Economic Factors</button>
+            <button id="tab-howtoplay" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500">How to Play</button>
         </div>
     </div>
+    
     <!-- Main content container below tab navigation -->
     <div class="relative w-full max-w-5xl mx-auto space-x-0">
+
+        <!-- Game Tab -->
         <div id="game-tab-content" class="tab-content">
             <div class="panel-shape">
                 <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-2">
                     🐮 The Big Snort 💸
                 </h1>
 
+
                 <svg id="us-map" width="100%" viewBox="0 0 960 600"></svg>
 
                 <div id="game-controls" class="panel-bgcolor text-gray-700">
-                    <div class="mb-4 grid grid-cols-3 gap-x-4">
-                        <p>Year: <span id="current-year" class="font-semibold">%ingame_year%</span></p>
-                        <p>Liquidity: $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
-                        <p>Capital: $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
-                        <p class="col-span-2">Selected: <span id="selected-state-info" class="font-semibold">None</span></p>
+                    <div class="mb-4 flex justify-between">
+                        <div class="group relative bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                            <p class="text-lg font-medium cursor-help">⏳ <span id="current-year" class="font-semibold">%ingame_year%</span></p>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                                The current year in the game. Each year you can make new investments and see how your previous investments perform.
+                            </div>
+                        </div>
+                        <div class="group relative bg-green-50 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                            <p class="text-lg font-medium cursor-help">💵 $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-1/2 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50 -translate-x-1/2">
+                                Available cash that you can use to make new investments. This is your spending power for new opportunities.
+                            </div>
+                        </div>
+                        <div class="group relative bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                            <p class="text-lg font-medium cursor-help">🏦 $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute right-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                                Your total wealth, including both available cash and the value of all your current investments.
+                            </div>
+                        </div>
                     </div>
 
                     <div id="investment-panel" class="hidden mt-4 p-4 border border-slate-300 rounded bg-white">
@@ -54,18 +73,30 @@
                         <p id="investment-feedback" class="text-green-600"></p>
                     </div>
 
-                    <div id="investments-display" class="mt-4">
-                        <h3 class="font-semibold text-gray-700">Current Investments:</h3>
-                        <ul id="investments-list" class="text-sm text-gray-600"><li>None</li></ul>
+                    <div class="flex justify-center">
+                        <button id="next-year-btn" class="action-button w-[40%]">Advance to Next Year 🏃‍♂️‍➡️</button>
                     </div>
+                </div>
+            </div>
 
-                    <button id="next-year-btn" class="action-button w-full">Advance to Next Year</button>
+            <div id="final-score-panel" class="hidden mt-4 panel-shape p-6 border-2 border-yellow-500 bg-gradient-to-br from-yellow-50 to-orange-50">
+                <h2 class="text-2xl font-bold text-center mb-4">🐮 Game Over! 🐮</h2>
+                <div class="text-center">
+                    <p class="text-lg mb-2">Your Final Score:</p>
+                    <p class="text-4xl font-bold text-yellow-600">$<span id="final-score">0</span></p>
+                    <p class="mt-4 text-gray-600 italic">Thanks for playing! Your score represents your total accumulated wealth through strategic milk industry investments.</p>
                 </div>
             </div>
 
             <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4 pl-8">
-                <h3 class="font-semibold text-gray-700 mb-2">Investment Score</h3>
-                <div class="relative h-8 rounded-lg flex overflow-visible">
+                <div class="group relative inline-block w-full text-center">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-5 cursor-help">Investment Score</h3>
+                    <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-1/2 -translate-x-1/2 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                        Your investment performance grade based on portfolio diversification and returns. Aim for grade 'A' by making smart investment choices across different states.
+                    </div>
+                </div>
+
+                <div class="relative h-8 rounded-lg flex overflow-visible mb-10">
                     <!-- Grade sections -->
                     <div class="grade-section flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-l-lg" data-grade="F">F</div>
                     <div class="grade-section flex-1 bg-orange-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="E">E</div>
@@ -78,7 +109,18 @@
                         <img src="assets/cow_slider_icon.png" alt="Cow slider" class="w-full h-full">
                     </div>
                 </div>
-                <p class="text-center mt-2">Current Grade: <span id="current-grade" class="font-semibold">F</span></p>
+                <div id="investment-feedback" class="mt-4 p-3 rounded-lg bg-gray-50 text-sm shadow-md">
+                    <div class="group relative">
+                        <h4 class="text-gray-800 font-semibold text-base mb-3 pb-2 border-b border-gray-200 cursor-help">Portfolio Analysis</h4>
+                        <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-1 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                            Detailed analysis of your investment strategy, including portfolio diversity, capital allocation, and balance across states. Use this feedback to optimize your investments.
+                        </div>
+                    </div>
+                    <p class="mb-2 font-medium"><span id="grade-summary" class="text-gray-700"></span></p>
+                    <p class="mb-1 ml-3"><span id="diversity-feedback" class="text-gray-700"></span></p>
+                    <p class="mb-1 ml-3"><span id="capital-feedback" class="text-gray-700"></span></p>
+                    <p class="     ml-3"><span id="balance-feedback" class="text-gray-700"></span></p>
+                </div>
             </div>
             
             <!-- Investment Data Visualizations Panel -->
@@ -120,7 +162,7 @@
         <div id="visualization-tab-content" class="tab-content">
             <div id="visualization-container" class="panel-shape mx-auto px-6">
                 <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-2">
-                    Data Visualizations
+                    Economic Factors
                 </h1>
                 <!-- <h2 class="text-xl font-bold text-gray-700 mb-4 text-center">Data Visualizations</h2> -->
 
@@ -222,6 +264,57 @@
                     <div id="sankey-chart-area" class="w-full min-h-[600px] svg-container"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- How to Play Tab -->
+        <div id="howtoplay-tab-content" class="tab-content">
+            <div class="panel-shape mx-auto px-6">
+                <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-6">How to Play</h1>
+                <div class="prose max-w-none">
+                    <p class="mb-4">Welcome to The Big Snort, a strategic investment game where you'll build your dairy empire across the United States! As a savvy investor in the milk industry, your goal is to maximize your wealth by making smart investment decisions in different states.</p>
+                    
+                    <h2 class="text-xl font-bold mb-3 mt-6">Game Objective</h2>
+                    <p class="mb-4">Your mission is to grow your initial capital by investing in milk production across different U.S. states. The game spans from 1970 to 2017, and your success depends on strategic diversification, understanding market trends, and responding to economic changes in the dairy industry.</p>
+                    
+                    <h2 class="text-xl font-bold mb-3 mt-6">How to Play</h2>
+                    <div class="mb-4">
+                        <p class="mb-2">1. Click on any state on the U.S. map.</p>
+                        <p class="mb-2">2. Enter your investment amount in the investment panel, and click 'Invest'.</p>
+                        <p class="mb-2">3. Monitor your investments through the Investor's Panel (see below).</p>
+                        <p class="mb-2">4. Use the "Advance to Next Year" button to jump to the next year.</p>
+                        <p class="mb-2">5. Adapt your investment strategy based on economical factors and reports.</p>
+                    </div>
+                    
+                    <h2 class="text-xl font-bold mb-3 mt-6">Key Metrics</h2>
+                    <div class="mb-4">
+                        <p class="mb-2">Keep an eye on these important indicators:</p>
+                        <ul class="list-disc ml-8">
+                            <li><strong>Budget (💵):</strong> Available cash for new investments</li>
+                            <li><strong>Total Capital (🏦):</strong> Your total wealth including current investments</li>
+                            <li><strong>Investment Score:</strong> Grade from F to A based on your portfolio's:</li>
+                            <ul class="list-circle ml-8">
+                                <li>Diversification across states</li>
+                                <li>Return on investment</li>
+                                <li>Strategic allocation</li>
+                            </ul><li><strong>Investor's Panel: </strong>Some extra metrics to help you track your progress</li>
+                            <ul class="list-circle ml-8">
+                                <li>Portfolio distribution: another way to look at your current investments</li>
+                                <li>Milk production ranking: last year's best states for milk production</li>
+                                <li>Capital evolution: your capital gains over time</li>
+                            </ul>
+                        </ul>
+                    </div>
+
+                    <h2 class="text-xl font-bold mb-3 mt-6">Tips for Success</h2>
+                    <p class="mb-4">You are now ready to start investing! Here are some tips to help you get started:</p>
+                    <div class="mb-4">
+                        <ul class="list-disc ml-8">
+                            <li>Study economical factors to understand market trends</li>
+                            <li>Aim for an 'A' grade by maintaining a well-balanced portfolio</li>
+                            <li>Invest everything in California (world's 7th largest economy)</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
