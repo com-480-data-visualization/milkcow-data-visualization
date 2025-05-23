@@ -24,10 +24,14 @@
         <div id="tab-navigation" class="relative z-20 flex justify-center bg-gradient-to-r from-blue-100 via-white to-blue-100 p-2 rounded-xl shadow-md w-full panel-shape">
             <button id="tab-game" class="tab-btn px-4 py-2 font-semibold border-b-2 border-blue-500 text-blue-700">Game</button>
             <button id="tab-visualizations" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500">Visualizations</button>
+            <button id="tab-howtoplay" class="tab-btn px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500">How to Play</button>
         </div>
     </div>
+    
     <!-- Main content container below tab navigation -->
     <div class="relative w-full max-w-5xl mx-auto space-x-0">
+
+        <!-- Game Tab -->
         <div id="game-tab-content" class="tab-content">
             <div class="panel-shape">
                 <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-2">
@@ -259,6 +263,57 @@
                     <div id="sankey-chart-area" class="w-full min-h-[600px] svg-container"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- How to Play Tab -->
+        <div id="howtoplay-tab-content" class="tab-content">
+            <div class="panel-shape mx-auto px-6">
+                <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-6">How to Play</h1>
+                <div class="prose max-w-none">
+                    <p class="mb-4">Welcome to The Big Snort, a strategic investment game where you'll build your dairy empire across the United States! As a savvy investor in the milk industry, your goal is to maximize your wealth by making smart investment decisions in different states.</p>
+                    
+                    <h2 class="text-xl font-bold mb-3 mt-6">Game Objective</h2>
+                    <p class="mb-4">Your mission is to grow your initial capital by investing in milk production across different U.S. states. The game spans multiple years, and your success depends on strategic diversification, understanding market trends, and responding to economic changes in the dairy industry.</p>
+                    
+                    <h2 class="text-xl font-bold mb-3 mt-6">How to Play</h2>
+                    <div class="mb-4">
+                        <p class="mb-2">1. Click on any state on the U.S. map.</p>
+                        <p class="mb-2">2. Enter your investment amount in the investment panel, and click 'Invest'.</p>
+                        <p class="mb-2">3. Monitor your investments through the Investor's Panel (see below).</p>
+                        <p class="mb-2">4. Use the "Advance to Next Year" button to jump to the next year.</p>
+                        <p class="mb-2">5. Adapt your investment strategy based on the data visualizations and reports.</p>
+                    </div>
+                    
+                    <h2 class="text-xl font-bold mb-3 mt-6">Key Metrics</h2>
+                    <div class="mb-4">
+                        <p class="mb-2">Keep an eye on these important indicators:</p>
+                        <ul class="list-disc ml-8">
+                            <li><strong>Budget (💵):</strong> Available cash for new investments</li>
+                            <li><strong>Total Capital (🏦):</strong> Your total wealth including current investments</li>
+                            <li><strong>Investment Score:</strong> Grade from F to A based on your portfolio's:</li>
+                            <ul class="list-circle ml-8">
+                                <li>Diversification across states</li>
+                                <li>Return on investment</li>
+                                <li>Strategic allocation</li>
+                            </ul><li><strong>Investor's Panel: </strong>Some extra metrics to help you track your progress</li>
+                            <ul class="list-circle ml-8">
+                                <li>Portfolio distribution: another way to look at your current investments</li>
+                                <li>Milk production ranking: last year's best states for milk production</li>
+                                <li>Capital evolution: your capital gains over time</li>
+                            </ul>
+                        </ul>
+                    </div>
+
+                    <h2 class="text-xl font-bold mb-3 mt-6">Tips for Success</h2>
+                    <p class="mb-4">You are now ready to start investing! Here are some tips to help you get started:</p>
+                    <div class="mb-4">
+                        <ul class="list-disc ml-8">
+                            <li>Study the Data Visualizations tab to understand market trends</li>
+                            <li>Aim for an 'A' grade by maintaining a well-balanced portfolio</li>
+                            <li>Invest everything in California (world's 7th largest economy)</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
