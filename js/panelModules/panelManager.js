@@ -179,6 +179,13 @@ function initPanels() {
                 panelConfig.renderSmallView(originalContentWrapper, panelConfig.id);
             }
 
+            // Prevent miniGraph2Panel from being expandable
+            // THIS IS TEMPOR: WHILE WORING ON THE DETAILED VIEW
+            if (panelConfig.id === 'miniGraph2Panel') {
+                panelElement.classList.remove('cursor-pointer'); // Remove pointer cursor as it's not clickable
+                return; // Skip adding the event listener for this panel
+            }
+
             panelElement.classList.add('cursor-pointer'); // Indicate clickable
             panelElement.addEventListener('click', (event) => {
                  // Prevent re-triggering if click is on something inside that already handled enlargement

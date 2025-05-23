@@ -396,6 +396,7 @@ function advanceYear() {
     // if (typeof updateSomePanel === 'function') {
     //     updateSomePanel();
     // }
+    document.dispatchEvent(new CustomEvent('yearChanged', { detail: currentYear }));
 }
 
 /**
