@@ -44,19 +44,19 @@
 
                 <div id="game-controls" class="panel-bgcolor text-gray-700">
                     <div class="mb-4 flex justify-between">
-                        <div class="group relative bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors duration-200">
-                            <p class="text-lg font-medium cursor-help">⏳ <span id="current-year" class="font-semibold">%ingame_year%</span></p>
+                        <div class="group relative bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors duration-200 cursor-help">
+                            <p class="text-lg font-medium">⏳ <span id="current-year" class="font-semibold">%ingame_year%</span></p>
                             <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
                                 The current year in the game. Each year you can make new investments and see how your previous investments perform.
                             </div>
                         </div>
-                        <div class="group relative bg-green-50 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                        <div class="group relative bg-green-50 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors duration-200 cursor-help">
                             <p class="text-lg font-medium cursor-help">💵 $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
                             <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-1/2 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50 -translate-x-1/2">
                                 Available cash that you can use to make new investments. This is your spending power for new opportunities.
                             </div>
                         </div>
-                        <div class="group relative bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                        <div class="group relative bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors duration-200 cursor-help">
                             <p class="text-lg font-medium cursor-help">🏦 $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
                             <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute right-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
                                 Your total wealth, including both available cash and the value of all your current investments.
@@ -89,8 +89,8 @@
             </div>
 
             <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4 pl-8">
-                <div class="group relative inline-block w-full text-center">
-                    <h3 class="font-semibold text-lg text-gray-700 mb-5 cursor-help">Investment Score</h3>
+                <div class="group relative inline-block w-full text-center cursor-help">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-5">Investment Score</h3>
                     <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-1/2 -translate-x-1/2 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
                         Your investment performance grade based on portfolio diversification and returns. Aim for grade 'A' by making smart investment choices across different states.
                     </div>
@@ -110,8 +110,8 @@
                     </div>
                 </div>
                 <div id="investment-feedback" class="mt-4 p-3 rounded-lg bg-gray-50 text-sm shadow-md">
-                    <div class="group relative">
-                        <h4 class="text-gray-800 font-semibold text-base mb-3 pb-2 border-b border-gray-200 cursor-help">Portfolio Analysis</h4>
+                    <div class="group relative cursor-help">
+                        <h4 class="text-gray-800 font-semibold text-base mb-3 pb-2 border-b border-gray-200">Portfolio Analysis</h4>
                         <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-1 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
                             Detailed analysis of your investment strategy, including portfolio diversity, capital allocation, and balance across states. Use this feedback to optimize your investments.
                         </div>
