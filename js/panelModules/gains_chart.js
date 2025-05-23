@@ -122,7 +122,7 @@ function _renderGainsChartInternal(svgContainerId) {
         .attr('text-anchor', 'middle')
         .attr('x', margin.left + width / 2)
         .attr('y', margin.top + height + margin.bottom - 10) // Adjusted y position
-        .text('Year')
+        .text('Time')
         .attr('class', 'text-sm text-gray-600');
 
     // Add Y axis label (appended to svgElement)

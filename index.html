@@ -75,14 +75,14 @@
             </div>
 
             <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4 pl-8">
-                <div class="group relative inline-block">
+                <div class="group relative inline-block w-full text-center">
                     <h3 class="font-semibold text-lg text-gray-700 mb-5 cursor-help">Investment Score</h3>
-                    <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                    <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-1/2 -translate-x-1/2 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
                         Your investment performance grade based on portfolio diversification and returns. Aim for grade 'A' by making smart investment choices across different states.
                     </div>
                 </div>
 
-                <div class="relative h-8 rounded-lg flex overflow-visible">
+                <div class="relative h-8 rounded-lg flex overflow-visible mb-10">
                     <!-- Grade sections -->
                     <div class="grade-section flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-l-lg" data-grade="F">F</div>
                     <div class="grade-section flex-1 bg-orange-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300" data-grade="E">E</div>
@@ -95,7 +95,18 @@
                         <img src="assets/cow_slider_icon.png" alt="Cow slider" class="w-full h-full">
                     </div>
                 </div>
-                <p class="text-center mt-2">Current Grade: <span id="current-grade" class="font-semibold">F</span></p>
+                <div id="investment-feedback" class="mt-4 p-3 rounded-lg bg-gray-50 text-sm shadow-md">
+                    <div class="group relative">
+                        <h4 class="text-gray-800 font-semibold text-base mb-3 pb-2 border-b border-gray-200 cursor-help">Portfolio Analysis</h4>
+                        <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-1 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                            Detailed analysis of your investment strategy, including portfolio diversity, capital allocation, and balance across states. Use this feedback to optimize your investments.
+                        </div>
+                    </div>
+                    <p class="mb-2 font-medium"><span id="grade-summary" class="text-gray-700"></span></p>
+                    <p class="mb-1 ml-3"><span id="diversity-feedback" class="text-gray-700"></span></p>
+                    <p class="mb-1 ml-3"><span id="capital-feedback" class="text-gray-700"></span></p>
+                    <p class="     ml-3"><span id="balance-feedback" class="text-gray-700"></span></p>
+                </div>
             </div>
             
             <!-- Investment Data Visualizations Panel -->

@@ -11,10 +11,6 @@ function updateInvestmentMetric() {
     // Get the grade based on the value
     const grades = ['A', 'B', 'C', 'D', 'E', 'F'];
     const grade = grades[Math.min(5, Math.floor(metricValue))];
-    
-    // Update the grade display with appropriate color
-    const gradeDisplay = document.getElementById('current-grade');
-    gradeDisplay.textContent = grade;
     const colors = {
         'F': '#dc2626', // red
         'E': '#ea580c', // orange
@@ -23,7 +19,19 @@ function updateInvestmentMetric() {
         'B': '#65a30d', // lime
         'A': '#16a34a'  // green
     };
-    gradeDisplay.style.color = colors[grade];
+
+    // Update grade summary
+    const gradeSummary = document.getElementById('grade-summary');
+    const summaries = {
+        'A': 'Excellent portfolio! Your investments are well-balanced and risk-optimized.',
+        'B': 'Very good portfolio with smart diversification.',
+        'C': 'Decent portfolio, but there\'s room for improvement.',
+        'D': 'Portfolio needs attention - consider rebalancing your investments.',
+        'E': 'High-risk portfolio - significant changes recommended.',
+        'F': 'Critical portfolio issues - immediate action required to minimize risk!'
+    };
+    gradeSummary.textContent = summaries[grade];
+    gradeSummary.style.color = colors[grade];
 
     // Reset all sections to normal size first
     document.querySelectorAll('.grade-section').forEach(section => {
@@ -42,6 +50,49 @@ function updateInvestmentMetric() {
     const slider = document.getElementById('metric-slider');
     const position = (6.0 - metricValue) / 6.0 * 100.0;
     slider.style.left = `${position}%`;
+
+    // Update feedback text
+    const statesInvested = Object.entries(investments).filter(([_, amount]) => amount > 0).length;
+    const totalInvestment = Object.values(investments).reduce((sum, investment) => sum + investment, 0);
+    const capital = budget + totalInvestment;
+    const investmentPercentage = (totalInvestment / capital) * 100;
+    const entropyPenalty = -_entropyBase();
+
+    // Diversity feedback
+    const diversityFeedback = document.getElementById('diversity-feedback');
+    if (statesInvested < 5) {
+        diversityFeedback.textContent = `🔍 Portfolio too concentrated: Invest in more states (currently ${statesInvested}, aim for 5-10)`;
+        diversityFeedback.style.color = '#dc2626'; // red
+    } else if (statesInvested > 10) {
+        diversityFeedback.textContent = `🔍 Portfolio too spread out: Focus on fewer states (currently ${statesInvested}, aim for 5-10)`;
+        diversityFeedback.style.color = '#dc2626'; // red
+    } else {
+        diversityFeedback.textContent = `✅ Good portfolio diversity: ${statesInvested} states`;
+        diversityFeedback.style.color = '#16a34a'; // green
+    }
+
+    // Capital allocation feedback
+    const capitalFeedback = document.getElementById('capital-feedback');
+    if (investmentPercentage < 50) {
+        capitalFeedback.textContent = `💰 Underinvested: ${investmentPercentage.toFixed(1)}% of capital invested (aim for 50-80%)`;
+        capitalFeedback.style.color = '#dc2626'; // red
+    } else if (investmentPercentage > 80) {
+        capitalFeedback.textContent = `💰 Overinvested: ${investmentPercentage.toFixed(1)}% of capital invested (aim for 50-80%)`;
+        capitalFeedback.style.color = '#dc2626'; // red
+    } else {
+        capitalFeedback.textContent = `✅ Good capital allocation: ${investmentPercentage.toFixed(1)}% invested`;
+        capitalFeedback.style.color = '#16a34a'; // green
+    }
+
+    // Balance feedback
+    const balanceFeedback = document.getElementById('balance-feedback');
+    if (entropyPenalty > 1) {
+        balanceFeedback.textContent = `⚖️ Unbalanced portfolio: Some states have too much investment compared to others`;
+        balanceFeedback.style.color = '#dc2626'; // red
+    } else {
+        balanceFeedback.textContent = `✅ Well-balanced portfolio distribution`;
+        balanceFeedback.style.color = '#16a34a'; // green
+    }
 }
 
 /**
@@ -64,7 +115,7 @@ function _computeInvestmentMetric() {
     return div + amt + ent;
 }
 
-const DIVERSITY_PENALTY_FACTOR = 0.25;
+const DIVERSITY_PENALTY_FACTOR = 0.5;
 const AMOUNT_PENALTY_FACTOR = 10;
 
 function _diversityPenalty() {
@@ -72,9 +123,9 @@ function _diversityPenalty() {
     // square penalty
     const statesInvested = Object.entries(investments).filter(([_, amount]) => amount > 0).length;
 
-    // every 4 too many/less states, lose 1 point
-    if (statesInvested < 10) return DIVERSITY_PENALTY_FACTOR * Math.abs(10 - statesInvested);
-    if (statesInvested > 15) return DIVERSITY_PENALTY_FACTOR * Math.abs(statesInvested - 15);
+    // every 4 too many/less states, lose 2 points
+    if (statesInvested < 5) return DIVERSITY_PENALTY_FACTOR * Math.abs(5 - statesInvested);
+    if (statesInvested > 10) return DIVERSITY_PENALTY_FACTOR * Math.abs(statesInvested - 10);
     return 0;
 }
 
