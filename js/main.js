@@ -17,7 +17,6 @@ let budget = 100000;
 let investments = {};
 let stateIndexMap = {}; // To map state names to their indices
 
-const selectedStateInfoEl = document.getElementById('selected-state-info');
 const budgetEl = document.getElementById('budget');
 const investmentPanel = document.getElementById('investment-panel');
 const investmentLabel = document.getElementById('investment-label');
@@ -25,7 +24,6 @@ const investmentAmountInput = document.getElementById('investment-amount');
 const investButton = document.getElementById('invest-button');
 const nextYearButton = document.getElementById('next-year-btn');
 const investmentFeedback = document.getElementById('investment-feedback');
-const investmentsList = document.getElementById('investments-list');
 const currentYearEl = document.getElementById('current-year');
 const capitalEl = document.getElementById('capital');
 
@@ -133,7 +131,6 @@ d3.json(geoJsonUrl).then(us => {
 
 }).catch(error => {
     console.error("Error loading or processing map data:", error);
-    selectedStateInfoEl.textContent = "Error loading map data.";
 });
 
 // Callback function when clicking on a state.
@@ -151,7 +148,6 @@ function handleStateClick(event, d) {
         d3.select(clickedStateElement).classed("selected", true);
         selectedStateElement = clickedStateElement;
         selectedStateData = d;
-        selectedStateInfoEl.textContent = stateName;
 
         // Show and configure investment panel
         investmentLabel.textContent = `Invest in ${stateName}:`;
@@ -171,7 +167,6 @@ function handleStateClick(event, d) {
         d3.select(clickedStateElement).classed("selected", false);
         selectedStateElement = null;
         selectedStateData = null;
-        selectedStateInfoEl.textContent = "None";
         investmentPanel.classList.add('hidden'); // Hide the panel
 
         // Remove graph when deselecting
@@ -219,22 +214,6 @@ nextYearButton.addEventListener('click', advanceYear);
 // Not needed anymore since we use grouping by "Others", so we lowered to 100
 const MIN_INVESTMENT = 100;
 
-function updateMap(stateName) {
-    const statePath = map_svg.select(`.state[data-state-name="${stateName}"]`);
-    if (statePath.node()) {
-        // maybe try to fix this with a generic function that needs to go through all states
-        // const totalInvestments = computeTotalInvestment();
-        // const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
-        // statePath.style("fill", investmentColorScale(investmentRatio));
-        statePath.classed("invested", investments[stateName] > 0);
-    } else {
-        console.warn(`Could not find SVG path for state: ${stateName}`);
-    }
-
-    // Dispatch an event to notify that investments have been updated
-    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
-}
-
 function handleInvestment() {
     if (!selectedStateData) return;
 
@@ -252,16 +231,13 @@ function handleInvestment() {
         return;
     }
 
-    const currentInvestment = investments[stateName] || 0;
-    const netChange = amount - currentInvestment;
-
-    if (netChange > budget) {
+    if (amount > budget) {
         showFeedback(`Insufficient funds. You only have $${d3.format(",.2f")(budget)} available!`, true);
         return;
     }
 
-    budget -= netChange;
-    investments[stateName] = amount;
+    budget -= amount;
+    investments[stateName] = (investments[stateName] || 0) + amount;
 
     // Remove investment entry if amount is 0
     if (investments[stateName] === 0) {
@@ -270,7 +246,7 @@ function handleInvestment() {
 
     // Update UI
     updateBudget();
-    displayInvestments(); // Update the list display
+    updateInvestmentMetric();
     showFeedback(`Successfully invested $${d3.format(",.2f")(amount)} in ${stateName}.`, false);
 
     investmentAmountInput.max = budget + (investments[stateName] || 0);
@@ -281,26 +257,20 @@ function handleInvestment() {
 // UI Update Functions
 /////////////////////////////////////////////////////////////
 
-function displayInvestments() {
-    investmentsList.innerHTML = '';
-    const investedStates = Object.keys(investments);
-
-    if (investedStates.length === 0) {
-        investmentsList.innerHTML = '<li>None</li>';
-        return;
+function updateMap(stateName) {
+    const statePath = map_svg.select(`.state[data-state-name="${stateName}"]`);
+    if (statePath.node()) {
+        // maybe try to fix this with a generic function that needs to go through all states
+        // const totalInvestments = computeTotalInvestment();
+        // const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
+        // statePath.style("fill", investmentColorScale(investmentRatio));
+        statePath.classed("invested", investments[stateName] > 0);
+    } else {
+        console.warn(`Could not find SVG path for state: ${stateName}`);
     }
 
-    investedStates.sort().forEach(stateName => {
-        const amount = investments[stateName];
-        if (amount > 0) {
-            const li = document.createElement('li');
-            li.textContent = `${stateName}: $${d3.format(",.2f")(amount)}`;
-            investmentsList.appendChild(li);
-        }
-    });
-
-    // Update investment metric
-    updateInvestmentMetric();
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
 function showFeedback(message, isError = false) {
@@ -308,23 +278,23 @@ function showFeedback(message, isError = false) {
     investmentFeedback.className = `mt-2 text-sm min-h-[1.25rem] ${isError ? 'text-red-600' : 'text-green-600'}`;
 }
 
-/////////////////////////////////////////////////////////////
-// GAME MECHANICS IMPLEMENTED HERE
-/////////////////////////////////////////////////////////////
-
 function updateYear() {
     currentYearEl.textContent = currentYear;
-}
-
-function getCapital() {
-    // Total capital = budget + investments
-    return budget + computeTotalInvestment();
 }
 
 function updateBudget() {
     budgetEl.textContent = d3.format(",.2f")(budget);
     const capital = getCapital();
     capitalEl.textContent = d3.format(",.2f")(capital);
+}
+
+/////////////////////////////////////////////////////////////
+// GAME MECHANICS IMPLEMENTED HERE
+/////////////////////////////////////////////////////////////
+
+function getCapital() {
+    // Total capital = budget + investments
+    return budget + computeTotalInvestment();
 }
 
 function advanceYear() {
@@ -339,7 +309,7 @@ function advanceYear() {
     }
 
     // Update UI
-    displayInvestments(); // TODO: We don't need this vis anymore
+    updateInvestmentMetric();
     updateBudget();
     updateYear();
     // updateProfitHistoryChart(); now elsewhere

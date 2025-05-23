@@ -372,9 +372,8 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
                     return;
                 }
 
-                updateInvestmentMetric();
                 updateBudget();
-                displayInvestments(); //TODO: remove this, pie chart is enough
+                updateInvestmentMetric();
                 updateMap(stateName)
                 const newData = getInvestmentPieData();
                 renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
@@ -415,7 +414,6 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
 
             updateInvestmentMetric();
             updateBudget();
-            displayInvestments(); //TODO: remove this, pie chart is enough
             updateMap(stateName);
             investFeedback.textContent = "";
             const newData = getInvestmentPieData();

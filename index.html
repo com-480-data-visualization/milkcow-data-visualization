@@ -34,14 +34,29 @@
                     🐮 The Big Snort 💸
                 </h1>
 
+
                 <svg id="us-map" width="100%" viewBox="0 0 960 600"></svg>
 
                 <div id="game-controls" class="panel-bgcolor text-gray-700">
-                    <div class="mb-4 grid grid-cols-3 gap-x-4">
-                        <p>Year: <span id="current-year" class="font-semibold">%ingame_year%</span></p>
-                        <p>Liquidity: $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
-                        <p>Capital: $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
-                        <p class="col-span-2">Selected: <span id="selected-state-info" class="font-semibold">None</span></p>
+                    <div class="mb-4 flex justify-between">
+                        <div class="group relative bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                            <p class="text-lg font-medium cursor-help">⏳ <span id="current-year" class="font-semibold">%ingame_year%</span></p>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                                The current year in the game. Each year you can make new investments and see how your previous investments perform.
+                            </div>
+                        </div>
+                        <div class="group relative bg-green-50 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                            <p class="text-lg font-medium cursor-help">💵 $<span id="budget" class="font-semibold">%ingame_budget%</span></p>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-1/2 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50 -translate-x-1/2">
+                                Available cash that you can use to make new investments. This is your spending power for new opportunities.
+                            </div>
+                        </div>
+                        <div class="group relative bg-purple-50 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                            <p class="text-lg font-medium cursor-help">🏦 $<span id="capital" class="font-semibold">%ingame_capital%</span></p>
+                            <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute right-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                                Your total wealth, including both available cash and the value of all your current investments.
+                            </div>
+                        </div>
                     </div>
 
                     <div id="investment-panel" class="hidden mt-4 p-4 border border-slate-300 rounded bg-white">
@@ -53,17 +68,20 @@
                         <p id="investment-feedback" class="text-green-600"></p>
                     </div>
 
-                    <div id="investments-display" class="mt-4">
-                        <h3 class="font-semibold text-gray-700">Current Investments:</h3>
-                        <ul id="investments-list" class="text-sm text-gray-600"><li>None</li></ul>
+                    <div class="flex justify-center">
+                        <button id="next-year-btn" class="action-button w-[40%]">Advance to Next Year 🏃‍♂️‍➡️</button>
                     </div>
-
-                    <button id="next-year-btn" class="action-button w-full">Advance to Next Year</button>
                 </div>
             </div>
 
             <div id="metric-panel" class="panel-shape panel-bgcolor mt-4 p-4 pl-8">
-                <h3 class="font-semibold text-gray-700 mb-2">Investment Score</h3>
+                <div class="group relative inline-block">
+                    <h3 class="font-semibold text-lg text-gray-700 mb-5 cursor-help">Investment Score</h3>
+                    <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute left-0 top-full mt-2 p-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-96 z-50">
+                        Your investment performance grade based on portfolio diversification and returns. Aim for grade 'A' by making smart investment choices across different states.
+                    </div>
+                </div>
+
                 <div class="relative h-8 rounded-lg flex overflow-visible">
                     <!-- Grade sections -->
                     <div class="grade-section flex-1 bg-red-600 flex items-center justify-center text-white text-sm font-medium origin-center transition-transform duration-300 rounded-l-lg" data-grade="F">F</div>
