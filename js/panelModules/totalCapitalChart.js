@@ -10,22 +10,21 @@ function _renderTotalCapitalChartInternal(svgId, data, isDetailedView) {
     svgElement.selectAll("*").remove(); // Clear previous content
 
     const rect = svgElement.node().getBoundingClientRect();
-    
+
     const titleHeight = isDetailedView ? 40 : 30;
-    const margin = { 
-        top: titleHeight, 
-        right: isDetailedView ? 40 : 20, 
-        bottom: isDetailedView ? 50 : 40, 
-        left: isDetailedView ? 60 : 50 
+    const margin = {
+        top: titleHeight,
+        right: isDetailedView ? 40 : 20,
+        bottom: isDetailedView ? 50 : 40,
+        left: isDetailedView ? 60 : 50
     };
-    
+
     // Render Chart Title (within SVG, outside the main 'g' for chart content)
     svgElement.append("text")
         .attr("x", rect.width / 2)
         .attr("y", margin.top / 2 + (isDetailedView ? 5 : 0)) // Positioned within the top margin area
         .attr("text-anchor", "middle")
-        .style("font-size", isDetailedView ? "16px" : "12px")
-        .style("font-weight", "bold")
+        .attr("class", "normal-text font-semibold text-grey-700") // Applied new classes
         .text("Total Capital Over Time");
 
     let width = rect.width - margin.left - margin.right;
@@ -50,21 +49,42 @@ function _renderTotalCapitalChartInternal(svgId, data, isDetailedView) {
 
     if (data && data.length > 0) {
         data.sort((a, b) => a.year - b.year); // Sort data if available
-        xDomain = d3.extent(data, d => d.year);
-        // Ensure yDomain starts at 0, or slightly below if negative values were possible
+        let minActualYear = d3.min(data, d => d.year);
+        let maxActualYear = d3.max(data, d => d.year);
+
+        if (minActualYear === maxActualYear) {
+            // Single data point: pad by 1 year on each side
+            xDomain = [minActualYear - 1, maxActualYear + 1];
+        } else {
+            // Multiple data points: pad by 0.5 year on each side
+            xDomain = [minActualYear - 0.5, maxActualYear + 0.5];
+        }
+        
         const minY = d3.min(data, d => d.capital);
         const maxY = d3.max(data, d => d.capital);
-        yDomain = [Math.min(0, minY || 0), (maxY || 100000) * 1.1]; 
-        if (yDomain[0] === 0 && yDomain[1] === 0 && maxY === 0) yDomain[1] = 100000; // Handle all zero data case
-        if (yDomain[0] === yDomain[1]) yDomain[1] = yDomain[0] + 100000; // Handle single value data
+
+        if (typeof minY === 'number' && typeof maxY === 'number') {
+            yDomain = [minY - 5000, maxY + 5000];
+            // Ensure that the domain has a minimal spread if min and max are identical
+            // (e.g. single data point). The minY - 5000, maxY + 5000 already gives a 10k spread.
+            // This check is a safeguard for any edge case leading to a zero or negative spread.
+            if (yDomain[1] <= yDomain[0]) {
+                yDomain[1] = yDomain[0] + 10000; // Ensure at least a 10k spread
+            }
+        } else {
+            // Fallback if capital values in data are not numeric
+            yDomain = [0, 100000]; 
+        }
     } else {
-        xDomain = [defaultStartYear, defaultEndYear];
+        // No data: use default years and apply padding
+        if (defaultStartYear === defaultEndYear) {
+            // Single default year: pad by 1 year on each side
+            xDomain = [defaultStartYear - 1, defaultEndYear + 1];
+        } else {
+            // Multiple default years: pad by 0.5 year on each side
+            xDomain = [defaultStartYear - 0.5, defaultEndYear + 0.5];
+        }
         yDomain = [0, 100000]; // Default Y domain for placeholder
-    }
-    
-    // Ensure xDomain has a valid range if only one year of data or defaultStartYear === defaultEndYear
-    if (xDomain[0] === xDomain[1]) {
-        xDomain = [xDomain[0] - 1, xDomain[1] + 1];
     }
 
 
@@ -108,88 +128,126 @@ function _renderTotalCapitalChartInternal(svgId, data, isDetailedView) {
             .attr("stroke-width", isDetailedView ? 1.5 : 1.0) // Made lines slightly thinner
             .attr("d", line);
 
-        // Tooltip group (similar to milk_history.js)
-        const focus = g.append('g')
-            .attr('class', 'focus')
-            .style('display', 'none');
+        // HTML Tooltip
+        const tooltip = d3.select("#capital-tooltip");
 
-        focus.append('circle')
-            .attr('r', 5) // Adjusted radius
-            .attr('fill', 'steelblue')
-            .attr('stroke', 'white')
-            .attr('stroke-width', 1.5);
+        if (tooltip.empty()) {
+            console.error("Tooltip element #capital-tooltip not found.");
+        }
 
-        focus.append('rect')
-            .attr('class', 'tooltip-bg')
-            .attr('x', 10)
-            .attr('y', -22)
-            .attr('width', 140) // Adjusted width for capital values
-            .attr('height', 40) // Adjusted height
-            .attr('rx', 4) // Rounded corners
-            .attr('fill', 'white')
-            .attr('stroke', 'steelblue')
-            .attr('stroke-width', 1)
-            .style('opacity', 0.9);
+        // Visible data points
+        const dataPoints = g.selectAll(".data-point")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "data-point")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y(d.capital))
+            .attr("r", function(d, i) {
+                if (isDetailedView) {
+                    return 4; // All points visible and larger in detailed view
+                }
+                // Small view logic
+                if (data.length === 1) {
+                    return 3; // Single data point visible
+                }
+                if (i === 0 || i === data.length - 1) {
+                    return 3; // First and last points visible
+                }
+                return 0; // Other points invisible
+            })
+            .style("fill", "steelblue")
+            .style("stroke", "white")
+            .style("stroke-width", 1.5)
+            .style("opacity", function(d, i) {
+                if (isDetailedView) {
+                    return 1; // All points fully opaque in detailed view
+                }
+                // Small view logic
+                if (data.length === 1) {
+                    return 1; // Single data point opaque
+                }
+                if (i === 0 || i === data.length - 1) {
+                    return 1; // First and last points opaque
+                }
+                return 0; // Other points transparent
+            })
+            .style("pointer-events", "none"); // Visual only, no pointer events
 
-        focus.append('text')
-            .attr('class', 'tooltip-year')
-            .attr('x', 18)
-            .attr('y', -8)
-            .style('font-size', '12px')
-            .style('font-weight', 'bold');
+        // Invisible hover areas - larger target for mouse events
+        g.selectAll(".hover-area")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "hover-area")
+            .attr("cx", d => x(d.year))
+            .attr("cy", d => y(d.capital))
+            .attr("r", 10) // Larger radius for easier hovering
+            .style("fill", "transparent")
+            .style("stroke", "none")
+            .style("pointer-events", "all") // Capture mouse events
+            .on('mouseover', function (event, d, i) { // Index 'i' is reported as undefined, datum 'd' should be valid
+                if (!tooltip.empty()) {
+                    tooltip.classed('hidden', false)
+                        .style('z-index', '10001'); 
+                }
+                if (isDetailedView) {
+                    // console.log("Hover-area mouseover: datum 'd':", JSON.stringify(d), "index 'i':", i); // Log for debugging 'i'
+                    // Attempt to find the corresponding dataPoint using the datum 'd' from the hover-area
+                    const pointToEnlarge = dataPoints.filter(dp_datum => dp_datum.year === d.year);
 
-        focus.append('text')
-            .attr('class', 'tooltip-capital')
-            .attr('x', 18)
-            .attr('y', 10)
-            .style('font-size', '12px');
+                    if (!pointToEnlarge.empty()) {
+                        pointToEnlarge.transition().duration(100).attr("r", 6);
+                    } else {
+                        console.log("Datum-based: Could not find point to enlarge for year:", d.year, "All dataPoints datums:", dataPoints.data());
+                    }
+                }
+            })
+            .on('mouseout', function (event, d, i) { // Index 'i' is reported as undefined
+                if (!tooltip.empty()) {
+                    tooltip.classed('hidden', true);
+                }
+                if (isDetailedView) {
+                    const pointToRevert = dataPoints.filter(dp_datum => dp_datum.year === d.year);
+                    if (!pointToRevert.empty()) {
+                        pointToRevert.transition().duration(100).attr("r", 4);
+                    } else {
+                        // console.log("Datum-based: Could not find point to revert for year:", d.year);
+                    }
+                }
+            })
+            .on('mousemove', function (event, d) {
+                if (tooltip.empty()) return;
 
-        // Overlay for mouse events
-        g.append('rect')
-            .attr('class', 'overlay')
-            .attr('width', width)
-            .attr('height', height)
-            .style('fill', 'none')
-            .style('pointer-events', 'all')
-            .on('mouseover', () => { if (data.length > 0) focus.style('display', null); })
-            .on('mouseout', () => focus.style('display', 'none'))
-            .on('mousemove', function(event) {
-                if (data.length === 0) return;
-                const bisectYear = d3.bisector(d => d.year).left;
-                const mouse = d3.pointer(event, this);
-                const x0 = x.invert(mouse[0]);
-                const i = bisectYear(data, x0, 1);
-                const d0 = data[i - 1];
-                const d1 = data[i] || d0; // Handle edge case where i is out of bounds
-                const d = (x0 - d0.year > d1.year - x0) ? d1 : d0;
-                
-                let tx = x(d.year);
-                let ty = y(d.capital);
+                tooltip.html(`<strong>Year:</strong> ${d.year}<br><strong>Capital:</strong> $${d3.format(",.0f")(d.capital)}`);
 
-                // Adjust tooltip position if near right edge
-                const tooltipWidth = 150; // Approximate width of tooltip background + padding
-                if (tx + tooltipWidth > width) {
-                    focus.select('.tooltip-bg').attr('x', -tooltipWidth + 10); // Adjust x for rect
-                    focus.select('.tooltip-year').attr('x', -tooltipWidth + 18); // Adjust x for text
-                    focus.select('.tooltip-capital').attr('x', -tooltipWidth + 18);
-                } else {
-                    focus.select('.tooltip-bg').attr('x', 10);
-                    focus.select('.tooltip-year').attr('x', 18);
-                    focus.select('.tooltip-capital').attr('x', 18);
+                let left = event.pageX + 15;
+                let top = event.pageY + 15;
+
+                const tooltipNode = tooltip.node();
+                if (tooltipNode) {
+                    const tooltipWidth = tooltipNode.offsetWidth;
+                    const tooltipHeight = tooltipNode.offsetHeight;
+
+                    if (left + tooltipWidth > window.innerWidth) {
+                        left = event.pageX - tooltipWidth - 15;
+                    }
+                    if (top + tooltipHeight > window.innerHeight) {
+                        top = event.pageY - tooltipHeight - 15;
+                    }
                 }
 
-                focus.attr('transform', `translate(${tx},${ty})`);
-                focus.select('.tooltip-year').text('Year: ' + d.year);
-                focus.select('.tooltip-capital').text('Capital: $' + d3.format(",.0f")(d.capital));
+                tooltip.style('left', left + 'px')
+                    .style('top', top + 'px');
             });
     }
-    
+
     // X Axis Label
     if (isDetailedView) {
         svgElement.append("text")
             .attr("text-anchor", "middle")
             .attr("x", margin.left + width / 2)
-            .attr("y", margin.top + height + margin.bottom - (isDetailedView ? 10 : 5) ) // Adjusted y for spacing
+            .attr("y", margin.top + height + margin.bottom - (isDetailedView ? 10 : 5)) // Adjusted y for spacing
             .style("font-size", isDetailedView ? "12px" : "10px")
             .text("Year");
     }

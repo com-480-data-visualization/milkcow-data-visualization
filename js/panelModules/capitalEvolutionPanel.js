@@ -26,6 +26,7 @@ const capitalEvolutionPanelConfig = {
     id: 'capitalEvolutionPanel',
     type: 'capitalEvolutionChart',
     enlargedTitle: 'Capital Evolution - Detailed Interactive View',
+    currentDetailedViewIndex: 0, // 0 for first chart, 1 for second
 
     renderSmallView: (containerElement, panelId) => {
         // Clear previous content to avoid duplicate SVGs
@@ -44,7 +45,7 @@ const capitalEvolutionPanelConfig = {
 
         // Create SVG container for Total Capital Chart
         const totalCapitalContainer = document.createElement('div');
-        totalCapitalContainer.style.height = '40%'; // Allocate 40% height
+        totalCapitalContainer.style.height = '50%'; // Allocate 50% height
         totalCapitalContainer.style.width = '100%';
         const totalCapitalSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         totalCapitalSvg.id = totalCapitalSvgId;
@@ -55,7 +56,7 @@ const capitalEvolutionPanelConfig = {
 
         // Create SVG container for Gains Chart
         const gainsChartContainer = document.createElement('div');
-        gainsChartContainer.style.height = '60%'; // Allocate 60% height
+        gainsChartContainer.style.height = '50%'; // Allocate 50% height
         gainsChartContainer.style.width = '100%';
         const gainsChartSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         gainsChartSvg.id = gainsChartSvgId;
@@ -85,24 +86,25 @@ const capitalEvolutionPanelConfig = {
         }
     },
 
-    renderDetailedView: (containerElement, panelId) => {
-        // containerElement is the 'detailedContentArea' from panelManager
-        containerElement.innerHTML = ''; // Clear previous content
-        containerElement.style.overflowY = 'auto'; // Ensure scrolling for tall content
+    renderDetailedView: function(containerElement, panelId) { // Changed to a regular function
+        containerElement.innerHTML = '';
+        // Apply snap scrolling specific class
+        containerElement.classList.add('detailed-view-snap-container');
+        // Ensure overflowY is auto/scroll for snapping to work, but hide default scrollbar via CSS
+        containerElement.style.overflowY = 'scroll'; 
         containerElement.style.display = 'flex';
         containerElement.style.flexDirection = 'column';
-        containerElement.style.height = '100%'; // Ensure it takes full modal height
+        containerElement.style.height = '100%';
 
         const totalCapitalSvgId = `detailed-total-capital-chart-svg-${panelId}`;
         const gainsChartSvgId = `detailed-gains-chart-svg-${panelId}`;
 
         // Create container and SVG for Detailed Total Capital Chart
         const totalCapitalDetailedContainer = document.createElement('div');
-        // Make it tall enough to be meaningful, scrolling will handle overflow
-        totalCapitalDetailedContainer.style.minHeight = '300px'; // Minimum height
-        totalCapitalDetailedContainer.style.height = '50vh'; // Example: 50% of viewport height
+        totalCapitalDetailedContainer.classList.add('chart-snap-section'); // Class for scroll snapping
+        totalCapitalDetailedContainer.style.height = '100%';
         totalCapitalDetailedContainer.style.width = '100%';
-        totalCapitalDetailedContainer.style.flexShrink = '0'; // Prevent shrinking
+        totalCapitalDetailedContainer.style.flexShrink = '0';
         const totalCapitalDetailedSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         totalCapitalDetailedSvg.id = totalCapitalSvgId;
         totalCapitalDetailedSvg.setAttribute("width", "100%");
@@ -112,10 +114,10 @@ const capitalEvolutionPanelConfig = {
 
         // Create container and SVG for Detailed Gains Chart
         const gainsChartDetailedContainer = document.createElement('div');
-        gainsChartDetailedContainer.style.minHeight = '350px'; // Minimum height
-        gainsChartDetailedContainer.style.height = '60vh'; // Example: 60% of viewport height
+        gainsChartDetailedContainer.classList.add('chart-snap-section'); // Class for scroll snapping
+        gainsChartDetailedContainer.style.height = '100%';
         gainsChartDetailedContainer.style.width = '100%';
-        gainsChartDetailedContainer.style.flexShrink = '0'; // Prevent shrinking
+        gainsChartDetailedContainer.style.flexShrink = '0';
         const gainsChartDetailedSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         gainsChartDetailedSvg.id = gainsChartSvgId;
         gainsChartDetailedSvg.setAttribute("width", "100%");
@@ -123,27 +125,95 @@ const capitalEvolutionPanelConfig = {
         gainsChartDetailedContainer.appendChild(gainsChartDetailedSvg);
         containerElement.appendChild(gainsChartDetailedContainer);
 
-        // Render Detailed Total Capital Chart
+        // Render charts
         if (typeof totalCapitalChart !== 'undefined' && typeof totalCapitalChart.renderDetailed === 'function') {
             totalCapitalChart.renderDetailed(totalCapitalSvgId, window.totalCapitalHistory || []);
         } else {
             console.warn('totalCapitalChart.renderDetailed is not available.');
             d3.select(`#${totalCapitalSvgId}`).append("text").attr("x", "50%").attr("y", "50%").attr("text-anchor", "middle").text("Detailed Total Capital Chart N/A");
         }
-
-        // Render Detailed Gains Chart
         if (typeof panel3 !== 'undefined' && typeof panel3.renderDetailedGraph === 'function') {
             panel3.renderDetailedGraph(gainsChartSvgId);
         } else {
             console.warn('panel3.renderDetailedGraph is not available.');
             d3.select(`#${gainsChartSvgId}`).append("text").attr("x", "50%").attr("y", "50%").attr("text-anchor", "middle").text("Detailed Gains Chart N/A");
         }
+
+        // Create and manage custom scrollbar
+        this._createCustomScrollbar(containerElement, panelId);
+
+        // Scroll to the current view index (e.g., if panel was re-rendered)
+        if (this.currentDetailedViewIndex === 1) {
+            gainsChartDetailedContainer.scrollIntoView();
+        } else {
+            totalCapitalDetailedContainer.scrollIntoView();
+        }
     },
-    onShrink: (originalContentContainer, panelId) => {
-        // Re-render the small view in the original placeholder
-        // The renderSmallView function now clears the container first.
+
+    _createCustomScrollbar: function(containerElement, panelId) {
+        // The containerElement is the one with scroll-snap (e.g., chartContainer in panelManager)
+        // The scrollbar should be a child of its parent (detailedContentArea in panelManager) for fixed positioning relative to it.
+        const positioningParent = containerElement.parentElement; 
+
+        let scrollbarWrapper = positioningParent.querySelector('.custom-scrollbar-wrapper');
+        if (scrollbarWrapper) scrollbarWrapper.remove();
+
+        scrollbarWrapper = document.createElement('div');
+        scrollbarWrapper.className = 'custom-scrollbar-wrapper';
+
+        const dot1 = document.createElement('div');
+        dot1.className = 'custom-scrollbar-dot';
+        dot1.dataset.index = 0;
+
+        const dot2 = document.createElement('div');
+        dot2.className = 'custom-scrollbar-dot';
+        dot2.dataset.index = 1;
+
+        scrollbarWrapper.appendChild(dot1);
+        scrollbarWrapper.appendChild(dot2);
+        positioningParent.appendChild(scrollbarWrapper); // Append to the positioningParent
+
+        const updateActiveDot = () => {
+            const scrollPercentage = containerElement.scrollTop / (containerElement.scrollHeight - containerElement.clientHeight);
+            if (scrollPercentage < 0.5) {
+                this.currentDetailedViewIndex = 0;
+                dot1.classList.add('active');
+                dot2.classList.remove('active');
+            } else {
+                this.currentDetailedViewIndex = 1;
+                dot1.classList.remove('active');
+                dot2.classList.add('active');
+            }
+        };
+
+        dot1.addEventListener('click', () => {
+            containerElement.children[0].scrollIntoView({ behavior: 'smooth' });
+        });
+
+        dot2.addEventListener('click', () => {
+            containerElement.children[1].scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Use a timeout to ensure layout is stable before initial update
+        setTimeout(updateActiveDot, 0);
+        containerElement.addEventListener('scroll', updateActiveDot, { passive: true });
+
+        // Initial active state
+        if (this.currentDetailedViewIndex === 0) dot1.classList.add('active');
+        else dot2.classList.add('active');
+    },
+
+    onShrink: function(originalContentContainer, panelId) { // Changed to a regular function for consistency, though not strictly necessary for 'this' here
+        // The detailedContentArea is the one that would have the scrollbar
+        const detailedContentArea = document.querySelector(`#${this.id} .detailed-content-area`); 
+        if (detailedContentArea) {
+            detailedContentArea.classList.remove('detailed-view-snap-container');
+            const scrollbar = detailedContentArea.querySelector('.custom-scrollbar-wrapper');
+            if (scrollbar) scrollbar.remove();
+        }
+        // Reset view index for next time it's enlarged
+        // this.currentDetailedViewIndex = 0; // Decided against resetting, to remember last view
+
         capitalEvolutionPanelConfig.renderSmallView(originalContentContainer, panelId);
-        
-        // No specific style resets needed here as renderSmallView rebuilds the content.
     }
 };

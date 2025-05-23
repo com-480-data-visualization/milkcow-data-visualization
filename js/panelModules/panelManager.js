@@ -122,7 +122,8 @@ function togglePanelEnlargement(panelElement, panelConfig) {
         storeAndHideOriginalContent(panelElement, panelConfig);
 
         const detailedContentArea = document.createElement('div');
-        detailedContentArea.className = 'detailed-content-area w-full h-full flex flex-col overflow-auto pt-1000'; 
+        // Added 'relative' for positioning context of the custom scrollbar
+        detailedContentArea.className = 'detailed-content-area w-full h-full flex flex-col overflow-auto pt-1000 relative'; 
         panelElement.appendChild(detailedContentArea);
 
         // Create a header container for title and close button

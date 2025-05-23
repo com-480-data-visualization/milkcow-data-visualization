@@ -1,0 +1,49 @@
+/* Styles for the custom two-point scrollbar and scroll snapping */
+.detailed-view-snap-container {
+    position: relative; /* For positioning the custom scrollbar */
+    scroll-snap-type: y mandatory;
+    /* Attempt to hide default scrollbar */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.detailed-view-snap-container::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.custom-scrollbar-wrapper {
+    position: absolute;
+    top: 50%;
+    right: 15px; /* Adjust position as needed */
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100; /* Ensure it's above chart content */
+}
+
+.custom-scrollbar-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #e0e0e0; /* Light gray - Inactive color */
+    border: 1px solid #e0e0e0; /* Slightly darker border for inactive */
+    border-radius: 50%;
+    margin: 10px 0; /* Spacing between dots */
+    cursor: pointer;
+    transition: background-color 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease; /* Added box-shadow to transition */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Subtle shadow for texture */
+}
+
+.custom-scrollbar-dot.active {
+    background-color: #606060; /* Dark gray - Active color */
+    border-color: #606060; /* Slightly darker border for active */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.chart-snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always; /* Ensures it snaps cleanly to the start */
+    height: 100%; /* Already set, but good for clarity with scroll-snap */
+    width: 100%;  /* Already set */
+    flex-shrink: 0; /* Already set */
+}

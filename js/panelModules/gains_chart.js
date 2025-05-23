@@ -37,19 +37,16 @@ function _renderGainsChartInternal(svgContainerId) {
         left: isDetailedView ? 60 : 50
     }; 
 
-    // Render Chart Title (within SVG)
+    // Render Chart Title
     svgElement.append("text")
         .attr("x", rect.width / 2)
         .attr("y", margin.top / 2 + (isDetailedView ? 5 : 0))
         .attr("text-anchor", "middle")
-        .style("font-size", isDetailedView ? "16px" : "12px")
-        .style("font-weight", "bold")
+        .attr("class", "normal-text font-semibold text-grey-700") // Applied new classes
         .text("Yearly Profit/Loss (%)");
 
-    let availableWidth = rect.width;
-    let availableHeight = rect.height;
-    let width = availableWidth - margin.left - margin.right;
-    let height = availableHeight - margin.top - margin.bottom;
+    let width = rect.width - margin.left - margin.right;
+    let height = rect.height - margin.top - margin.bottom;
 
     if (width <= 0 || height <= 0) {
         svgElement.append("text")
@@ -185,7 +182,7 @@ function _updateYAxisScale() {
     } else {
         const visibleData = gainsData.filter(d => d.year >= startYear);
         const maxAbsGain = visibleData.length > 0 ? Math.max(...visibleData.map(d => Math.abs(d.gain))) : 1;
-        const yDomainValue = Math.max(maxAbsGain * 1.5, 1); 
+        const yDomainValue = Math.max(maxAbsGain * 1.5, 0.5); 
         gainsChart.y.domain([-yDomainValue, yDomainValue]);
     }
 
