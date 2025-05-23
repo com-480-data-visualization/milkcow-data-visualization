@@ -43,36 +43,6 @@ document.addEventListener('DOMContentLoaded', function () {
     registerPanel(capitalEvolutionPanelConfig);
     initPanels();
 
-    // Tab switching functionality
-    const tabGame = document.getElementById('tab-game');
-    const tabVisualizations = document.getElementById('tab-visualizations');
-    const gameTabContent = document.getElementById('game-tab-content');
-    const visualizationsTabContent = document.getElementById('visualizations-tab-content');
-
-    if (tabGame && tabVisualizations && gameTabContent && visualizationsTabContent) {
-        tabGame.addEventListener('click', function () {
-            // Update tab button styles
-            tabGame.classList.add('border-blue-500', 'text-blue-700');
-            tabGame.classList.remove('border-transparent', 'text-gray-500');
-            tabVisualizations.classList.add('border-transparent', 'text-gray-500');
-            tabVisualizations.classList.remove('border-blue-500', 'text-blue-700');
-            // Show/hide content
-            gameTabContent.classList.remove('hidden');
-            visualizationsTabContent.classList.add('hidden');
-        });
-
-        tabVisualizations.addEventListener('click', function () {
-            // Update tab button styles
-            tabVisualizations.classList.add('border-blue-500', 'text-blue-700');
-            tabVisualizations.classList.remove('border-transparent', 'text-gray-500');
-            tabGame.classList.add('border-transparent', 'text-gray-500');
-            tabGame.classList.remove('border-blue-500', 'text-blue-700');
-            // Show/hide content
-            visualizationsTabContent.classList.remove('hidden');
-            gameTabContent.classList.add('hidden');
-        });
-    }
-
     const dropdownBtn = document.getElementById('product-dropdown-btn');
     const dropdownList = document.getElementById('product-dropdown-list');
     if (dropdownBtn && dropdownList) {

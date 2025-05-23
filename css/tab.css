@@ -1,0 +1,25 @@
+.tab-content {
+    transition: transform 400ms ease;
+    will-change: transform;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
+
+.tab-content.tab-active {
+    transform: translateX(0);
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.tab-content.tab-left {
+    transform: translateX(-200%);
+    z-index: 1;
+}
+
+.tab-content.tab-right {
+    transform: translateX(200%);
+    z-index: 1;
+}

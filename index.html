@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style_index.css">
+    <link rel="stylesheet" type="text/css" href="css/tab.css">
     <link rel="stylesheet" type="text/css" href="css/panels.css">
     
     <!-- Link to favicon -->
@@ -26,7 +27,7 @@
         </div>
     </div>
     <!-- Main content container below tab navigation -->
-    <div class="relative w-full max-w-5xl mx-auto space-x-8">
+    <div class="relative w-full max-w-5xl mx-auto space-x-0">
         <div id="game-tab-content" class="tab-content">
             <div class="panel-shape">
                 <h1 class="text-2xl font-bold text-center text-gray-700 mt-4 mb-2">
@@ -225,99 +226,15 @@
         </div>
     </div>
 
-    <style>
-    .tab-content {
-        transition: transform 300ms ease;
-        will-change: transform;
-        position: absolute;
-        width: 100%;
-        left: 0;
-        top: 0;
-        pointer-events: none;
-    }
-    .tab-content.tab-active {
-        transform: translateX(0);
-        z-index: 10;
-        pointer-events: auto;
-    }
-    .tab-content.tab-left {
-        transform: translateX(-100%);
-        z-index: 1;
-    }
-    .tab-content.tab-right {
-        transform: translateX(100%);
-        z-index: 1;
-    }
-    </style>
-
-    <script>
-    // Tab switching logic
-    const tabGame = document.getElementById('tab-game');
-    const tabVisualizations = document.getElementById('tab-visualizations');
-    const gameTabContent = document.getElementById('game-tab-content');
-    const visualizationTabContent = document.getElementById('visualization-tab-content');
-
-    // Set initial state for both tabs
-    gameTabContent.classList.add('tab-active');
-    visualizationTabContent.classList.add('tab-right');
-    
-    // Make sure no hidden classes are present
-    gameTabContent.classList.remove('hidden');
-    visualizationTabContent.classList.remove('hidden');
-
-    // Current active tab
-    let currentTab = 'game';
-
-    function setActiveTab(tab) {
-        // Don't do anything if we're already on this tab
-        if (tab === currentTab) return;
-        
-        // Update which tab is current
-        currentTab = tab;
-        
-        // Update tab button styles
-        if (tab === 'game') {
-            tabGame.classList.add('border-blue-500', 'text-blue-700');
-            tabGame.classList.remove('border-transparent', 'text-gray-500');
-            tabVisualizations.classList.remove('border-blue-500', 'text-blue-700');
-            tabVisualizations.classList.add('border-transparent', 'text-gray-500');
-            
-            // First position the game content - will be animated
-            gameTabContent.classList.remove('tab-left', 'tab-right');
-            gameTabContent.classList.add('tab-active');
-            
-            // Then position the visualization content
-            visualizationTabContent.classList.remove('tab-active', 'tab-left');
-            visualizationTabContent.classList.add('tab-right');
-        } else {
-            tabVisualizations.classList.add('border-blue-500', 'text-blue-700');
-            tabVisualizations.classList.remove('border-transparent', 'text-gray-500');
-            tabGame.classList.remove('border-blue-500', 'text-blue-700');
-            tabGame.classList.add('border-transparent', 'text-gray-500');
-            
-            // First position the visualization content - will be animated
-            visualizationTabContent.classList.remove('tab-left', 'tab-right');
-            visualizationTabContent.classList.add('tab-active');
-            
-            // Then position the game content
-            gameTabContent.classList.remove('tab-active', 'tab-right');
-            gameTabContent.classList.add('tab-left');
-        }
-    }
-
-    // Add click event listeners to tabs
-    tabGame.addEventListener('click', () => setActiveTab('game'));
-    tabVisualizations.addEventListener('click', () => setActiveTab('visualizations'));
-    </script>
-
     <div id="year-transition-animation" class="hidden fixed inset-0 flex items-center justify-center pointer-events-none z-[9999]">
         <span id="year-transition-text" class="text-8xl font-bold text-white bg-black bg-opacity-75 px-8 py-4 rounded-lg shadow-xl"></span>
     </div>
 
     
-    <script src="js/main.js"></script>
-    <script src="js/load_datasets.js"></script>
     <script src="js/background.js"></script>
+    <script src="js/load_datasets.js"></script>
+    <script src="js/tab_switching.js"></script>
+    <script src="js/main.js"></script>
 
     <script src="js/pie_chart.js"></script>
     <script src="js/ranking.js"></script>
