@@ -253,6 +253,9 @@ async function initMilkCostSankey() {
         const svg = chartDiv.select('svg');
         const mainGroup = svg.select('.sankey-main-group');
         
+        // Remove previous chart elements before drawing new ones
+        mainGroup.selectAll('*').remove();
+        
         // Sankey layout with adjusted settings for better flow containment
         const sankey = d3.sankey()
             .nodeId(d => d.name)
@@ -261,7 +264,7 @@ async function initMilkCostSankey() {
             .nodeAlign(d3.sankeyJustify) // Use justify alignment for better visual balance
             .extent([[0, 0], [width, height]])
             .linkSort(null); // Keep links in the original order
-            
+        
         const {nodes: graphNodes, links: graphLinks} = sankey({
             nodes: nodes.map(d => Object.assign({}, d)),
             links: validLinks.map(d => Object.assign({}, d))
@@ -327,7 +330,7 @@ async function initMilkCostSankey() {
 
         // Create or update links
         const linkGroup = mainGroup.selectAll('.link-group')
-            .data(graphLinks, d => `${d.source.name}-${d.target.name}`);
+            .data(graphLinks, d => `${d.source.name}-${d.target.name}-${year}`); // include year in key
             
         const linkGroupEnter = linkGroup.enter()
             .append('g')
@@ -422,7 +425,7 @@ async function initMilkCostSankey() {
 
         // Create or update nodes with smooth transitions
         const node = mainGroup.selectAll('.node')
-            .data(graphNodes, d => d.name);
+            .data(graphNodes, d => `${d.name}-${year}`); // include year in key
             
         const nodeEnter = node.enter()
             .append('g')
