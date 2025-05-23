@@ -379,6 +379,7 @@ function renderProductPriceGraph() {
         logDebug(`Brush event: ${event.type}, Year range: ${selectedRange[0]}-${selectedRange[1]}`);
     }
     
+    /*
     // Add title
     svg.append('text')
         .attr('x', width / 2)
@@ -386,6 +387,7 @@ function renderProductPriceGraph() {
         .attr('text-anchor', 'middle')
         .attr('class', 'text-lg font-semibold')
         .text('Price Evolution of Selected Milk Products');
+    */
     
     // Y axis label
     svg.append('text')

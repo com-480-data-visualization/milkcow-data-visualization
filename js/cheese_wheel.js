@@ -607,6 +607,7 @@ function renderCheeseWheel(year) {
             .attr("title", theme.description);
     });
     
+    /*
     // Title text (positioned above the chart)
     svg.append("text")
         .attr("class", "chart-title")
@@ -616,6 +617,7 @@ function renderCheeseWheel(year) {
         .style("font-weight", "bold")
         .style("fill", "#333333")
         .text(`Cheese Consumption (${year})`);
+    */
     
     // Description text (initially empty, will be populated on hover)
     svg.append("text")

@@ -153,7 +153,7 @@
                 <!-- State selection for visualizations -->
                 <div class="mb-6  gap-4">
                     <h3 class="text-lg font-semibold mb-2">State-Level Milk Production</h3>
-                    <p class="text-gray-600 mb-4">Milk production is one of the most critical economic indicators in the dairy industry, as it directly reflects consumer demand for milk and dairy products.</p>
+                    <p class="text-gray-600 mb-4">Milk production is the most critical economic indicators in the dairy industry, as it directly reflects consumer demand for milk and dairy products. States with higher milk production are more likely to offer good investment opportunities.</p>
 
                     <div class="mb-4 flex flex-wrap items-center gap-4">
                         <label for="visualization-state-select" class="block font-medium text-gray-700">Select State:</label>
@@ -217,7 +217,7 @@
                 
                 <div id="product-price-visualization" class="mt-10">
                     <h3 class="text-lg font-semibold mb-2">National Dairy Product Prices</h3>
-                    <p class="text-gray-600 mb-4"></p>
+                    <p class="text-gray-600 mb-4">The prices of popular dairy products averaged over all US states. Dairy product prices correlate with consumer demand, and therefore are an important economic indicator for investments. States known for producing a specific type of dairy product with increasing demand may offer better investment opportunities.</p>
 
                     <div class="mb-4 flex flex-wrap items-center gap-4">
                         <label for="product-multiselect" class="block font-medium text-gray-700">Select up to 4 products:</label>
@@ -234,7 +234,9 @@
                 
                 <!-- Cheese Wheel Visualization -->
                 <div id="cheese-wheel-visualization" class="mt-16 pt-8 border-t border-gray-200">
-                    <h3 class="text-lg font-semibold mb-4">Cheese Consumption Wheel</h3>
+                    <h3 class="text-lg font-semibold mb-4">National Cheese Consumption</h3>
+                    <p class="text-gray-600 mb-4">The percentage of cheese consumption in the US by cheese type. States known for producing a specific type of cheese with increasing demand may offer better investment opportunities.</p>
+
                     <div class="mb-6 flex flex-wrap items-center gap-4">
                         <label for="cheese-year-select" class="block font-medium text-gray-700">Select Year:</label>
                         <select id="cheese-year-select" class="border rounded px-2 py-1 min-w-[120px]">
@@ -249,6 +251,9 @@
 
                 <!-- Sankey Chart Visualization -->
                 <div id="sankey-chart-container" class="mt-10 pt-8 border-t border-gray-200 mb-10">
+                    <h3 class="text-lg font-semibold mb-4">Origin of the cost of milk</h3>
+                    <p class="text-gray-600 mb-4">Breaks down what makes up the retail price of milk. Feeding costs, cow replacement expenses, and other operational costs vary by state and over time. States with lower operational costs or better access to feed supplies may offer better investment opportunities.</p>
+
                     <div class="mb-6 flex flex-wrap items-center justify-center gap-4">
                     </div>
                     <div id="sankey-chart-area" class="w-full min-h-[600px] svg-container"></div>
