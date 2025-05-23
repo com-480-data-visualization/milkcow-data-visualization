@@ -98,9 +98,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-const investmentColorScale = d3.scaleLinear()
-    .domain([0, 1]) // 0% to 100% of budget
-    .range(["#cbd5e1", "#0000ff"]); // white to blue (Bootstrap blue)
+// const investmentColorScale = d3.scaleLinear()
+//     .domain([0, 1]) // 0% to 100% of budget
+//     .range(["#256400", "#0000ff"]); // white to green
 
 // Load GeoJSON Data
 const geoJsonUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
@@ -192,7 +192,7 @@ function handleStateHover(event, d) {
     const relativeInvestment = totalInvestment == 0 ? 0 : (100 * investment / totalInvestment);
     stateTooltip.innerHTML = `
         <div class="font-semibold text-sm">${d.properties.name}</div>
-        <div class="text-xs text-gray-600">Invested: $${investment.toLocaleString()} (${relativeInvestment}%)</div>
+        <div class="text-xs text-gray-600">Invested: $${d3.format(",.2f")(investment)} (${relativeInvestment}%)</div>
     `;
 }
 
@@ -216,14 +216,16 @@ investmentAmountInput.addEventListener('keypress', function (event) {
 });
 nextYearButton.addEventListener('click', advanceYear);
 
-const MIN_INVESTMENT = 1000;
+// Not needed anymore since we use grouping by "Others", so we lowered to 100
+const MIN_INVESTMENT = 100;
 
 function updateMap(stateName) {
     const statePath = map_svg.select(`.state[data-state-name="${stateName}"]`);
     if (statePath.node()) {
-        //const totalInvestments = computeTotalInvestment();
-        //const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
-        //statePath.style("fill", investmentColorScale(investmentRatio));
+        // maybe try to fix this with a generic function that needs to go through all states
+        // const totalInvestments = computeTotalInvestment();
+        // const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
+        // statePath.style("fill", investmentColorScale(investmentRatio));
         statePath.classed("invested", investments[stateName] > 0);
     } else {
         console.warn(`Could not find SVG path for state: ${stateName}`);
@@ -246,7 +248,7 @@ function handleInvestment() {
     }
 
     if (amount < MIN_INVESTMENT) {
-        showFeedback(`Minimum investment is $${MIN_INVESTMENT.toLocaleString()}.`, true);
+        showFeedback(`Minimum investment is $${d3.format(",.2f")(MIN_INVESTMENT)}.`, true);
         return;
     }
 
@@ -254,7 +256,7 @@ function handleInvestment() {
     const netChange = amount - currentInvestment;
 
     if (netChange > budget) {
-        showFeedback(`Insufficient funds. You only have $${budget.toLocaleString()} available!`, true);
+        showFeedback(`Insufficient funds. You only have $${d3.format(",.2f")(budget)} available!`, true);
         return;
     }
 
@@ -269,7 +271,7 @@ function handleInvestment() {
     // Update UI
     updateBudget();
     displayInvestments(); // Update the list display
-    showFeedback(`Successfully invested $${amount.toLocaleString()} in ${stateName}.`, false);
+    showFeedback(`Successfully invested $${d3.format(",.2f")(amount)} in ${stateName}.`, false);
 
     investmentAmountInput.max = budget + (investments[stateName] || 0);
     updateMap(stateName); // Update the map with the new investment
@@ -292,7 +294,7 @@ function displayInvestments() {
         const amount = investments[stateName];
         if (amount > 0) {
             const li = document.createElement('li');
-            li.textContent = `${stateName}: $${amount.toLocaleString()}`;
+            li.textContent = `${stateName}: $${d3.format(",.2f")(amount)}`;
             investmentsList.appendChild(li);
         }
     });
@@ -320,9 +322,9 @@ function getCapital() {
 }
 
 function updateBudget() {
-    budgetEl.textContent = budget.toLocaleString();
+    budgetEl.textContent = d3.format(",.2f")(budget);
     const capital = getCapital();
-    capitalEl.textContent = capital.toLocaleString();
+    capitalEl.textContent = d3.format(",.2f")(capital);
 }
 
 function advanceYear() {
@@ -377,7 +379,7 @@ function applyPayoffs(current_year) {
         totalGains += payoffs;
 
         if (payoffs != 0) {
-            console.log(`Payoff for ${state}: $${payoffs.toLocaleString()}`);
+            console.log(`Payoff for ${state}: $${d3.format(",.2f")(payoffs)}`);
         }
     });
 

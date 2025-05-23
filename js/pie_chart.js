@@ -327,7 +327,9 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
             `;
         }
 
-        detailsAndInteractionsHTML += `<button id="clear-pie-selection" class="mt-8 w-full px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>`;
+        detailsAndInteractionsHTML += `<p id="pie-invest-feedback" class="text-sm min-h-[1.25rem] text-red-600 mt-4"></p>`;
+
+        detailsAndInteractionsHTML += `<button id="clear-pie-selection" class="mt-4 w-full px-3 py-1 bg-gray-200 text-xs rounded hover:bg-gray-300 focus:outline-none">Clear Selection</button>`;
 
         legendDiv.innerHTML = capitalDisplayHTMLBase() + legendContentWrapper(detailsAndInteractionsHTML);
 
@@ -381,15 +383,27 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
 
         const investButton = document.getElementById('pie-chart-invest-button');
         const investAmountInput = document.getElementById('pie-chart-invest-amount-input');
+        const investFeedback = document.getElementById('pie-invest-feedback');
+
+        // TODO: modularize this with the one in main.js
+        function pieShowFeedback(message, isError = false) {
+            if (investFeedback) {
+                investFeedback.textContent = message;
+            }
+        }
 
         function handlePieInvestment() {
             const amountToInvest = parseFloat(investAmountInput.value);
             if (isNaN(amountToInvest) || amountToInvest <= 0) {
-                alert("Please enter a valid positive amount to invest.");
+                pieShowFeedback("Please enter a valid positive amount to invest.");
                 return;
             }
             if (amountToInvest > budget) {
-                alert("Not enough budget to make this investment. Available: $" + d3.format(",.2f")(budget));
+                pieShowFeedback("Not enough budget to make this investment. Available: $" + d3.format(",.2f")(budget));
+                return;
+            }
+            if (amountToInvest < MIN_INVESTMENT) {
+                pieShowFeedback(`Minimum investment is $${MIN_INVESTMENT.toLocaleString()}.`, true);
                 return;
             }
 
@@ -403,17 +417,18 @@ function renderInteractivePieChart(chartContainerId, legendContainerId, data, pr
             updateBudget();
             displayInvestments(); //TODO: remove this, pie chart is enough
             updateMap(stateName);
+            investFeedback.textContent = "";
             const newData = getInvestmentPieData();
             renderInteractivePieChart(chartContainerId, legendContainerId, newData, selectedLabel); // Pass selectedLabel
         }
 
-        if (investButton && investAmountInput) {
+        if (investButton && investAmountInput && investFeedback) {
             investButton.addEventListener('click', handlePieInvestment);
-            investButton.addEventListener('keypress', function (event) {
+            investAmountInput.addEventListener('keypress', function (event) {
                 if (event.key === 'Enter') {
                     event.preventDefault(); // Prevent form submission
                     handlePieInvestment();
-                    investButton.value = '';
+                    investAmountInput.value = '';
                 }
             });
         }
