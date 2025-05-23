@@ -189,7 +189,7 @@ function handleStateHover(event, d) {
     const relativeInvestment = totalInvestment == 0 ? 0 : (100 * investment / totalInvestment);
     stateTooltip.innerHTML = `
         <div class="font-semibold text-sm text-white">${d.properties.name}</div>
-        <div class="text-xs text-white">Invested: $${d3.format(",.2f")(investment)} (${relativeInvestment}%)</div>
+        <div class="text-xs text-white">Invested: $${formatDollar(investment)} (${relativeInvestment}%)</div>
     `;
 }
 
@@ -229,12 +229,12 @@ function handleInvestment() {
     }
 
     if (amount < MIN_INVESTMENT) {
-        showFeedback(`Minimum investment is $${d3.format(",.2f")(MIN_INVESTMENT)}.`, true);
+        showFeedback(`Minimum investment is $${formatDollar(MIN_INVESTMENT)}.`, true);
         return;
     }
 
     if (amount > budget) {
-        showFeedback(`Insufficient funds. You only have $${d3.format(",.2f")(budget)} available!`, true);
+        showFeedback(`Insufficient funds. You only have $${formatDollar(budget)} available!`, true);
         return;
     }
 
@@ -249,7 +249,7 @@ function handleInvestment() {
     // Update UI
     updateBudget();
     updateInvestmentMetric();
-    showFeedback(`Successfully invested $${d3.format(",.2f")(amount)} in ${stateName}.`, false);
+    showFeedback(`Successfully invested $${formatDollar(amount)} in ${stateName}.`, false);
 
     investmentAmountInput.max = budget + (investments[stateName] || 0);
     updateMap(stateName); // Update the map with the new investment
@@ -364,7 +364,7 @@ function applyPayoffs(current_year) {
         totalGains += payoffs;
 
         if (payoffs != 0) {
-            console.log(`Payoff for ${state}: $${d3.format(",.2f")(payoffs)}`);
+            console.log(`Payoff for ${state}: $${formatDollar(payoffs)}`);
         }
     });
 
