@@ -374,6 +374,7 @@ function advanceYear() {
     updateBudget();
     updateYear();
     // updateProfitHistoryChart(); now elsewhere
+    document.dispatchEvent(new CustomEvent('yearChanged', { detail: currentYear })); // Notify all panels about the year change
 }
 
 /**
