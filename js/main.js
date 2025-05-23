@@ -362,19 +362,25 @@ function getCapital() {
 }
 
 function advanceYear() {
-
-    // Apply state payoffs
-    applyPayoffs(); 
+    // Apply state payoffs - this function should update the global 'budget'
+    applyPayoffs(); // Assuming this updates the global 'budget' variable with gains/losses
 
     // Increment year
     currentYear++;
 
-    // Update UI
-    updateInvestmentMetric();
-    updateBudget();
-    updateYear();
-    // updateProfitHistoryChart(); now elsewhere
-    document.dispatchEvent(new CustomEvent('yearChanged', { detail: currentYear })); // Notify all panels about the year change
+    // Get the capital for the new year (after payoffs and year increment)
+    const currentYearCapital = getCapital(); // Uses the (presumably) updated 'budget'
+
+    // Store in history
+    window.totalCapitalHistory.push({ year: currentYear, capital: currentYearCapital });
+
+    // Update UI elements
+    updateBudget(); // Updates budgetEl and capitalEl using getCapital()
+    updateInvestmentMetric(); // Potentially uses currentYear or capital
+    updateYear(); // Updates currentYearEl and handles game over
+
+    // Notify all panels about the year change
+    document.dispatchEvent(new CustomEvent('yearChanged', { detail: currentYear }));
 }
 
 /**
