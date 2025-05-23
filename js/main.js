@@ -15,6 +15,7 @@ let selectedStateElement = null;
 let selectedStateData = null;
 let budget = 100000;
 let investments = {};
+let stateIndexMap = {}; // To map state names to their indices
 
 const selectedStateInfoEl = document.getElementById('selected-state-info');
 const budgetEl = document.getElementById('budget');
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
     registerPanel(capitalEvolutionPanelConfig);
     initPanels();
 
+    // Populate the diary product dropdown
     const dropdownBtn = document.getElementById('product-dropdown-btn');
     const dropdownList = document.getElementById('product-dropdown-list');
     if (dropdownBtn && dropdownList) {
@@ -76,6 +78,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const visStateSelect = document.getElementById('visualization-state-select');
     if (visStateSelect) {
+        // Populate the state-index dictionary
+        for (let i = 0; i < visStateSelect.options.length; i++) {
+            const stateName = visStateSelect.options[i].text;
+            stateIndexMap[stateName] = visStateSelect.options[i].value;
+        }
         visStateSelect.addEventListener('change', function () {
             const selectedState = visStateSelect.options[visStateSelect.selectedIndex].text;
             if (selectedState === 'All States' || !selectedState) {

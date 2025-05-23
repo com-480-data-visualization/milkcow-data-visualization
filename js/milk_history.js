@@ -1,5 +1,11 @@
 // === Visualization: Historical Milk Production Graph ===
 function renderMilkProductionGraph(stateName) {
+    // Update the dropdown to reflect the selected state
+    const stateSelectElement = document.getElementById('visualization-state-select');
+    if (stateSelectElement) {
+        stateSelectElement.value = stateIndexMap[stateName];
+    }
+    
     // Remove any previous graph
     d3.select('#graphs-area').selectAll('*').remove();
 
