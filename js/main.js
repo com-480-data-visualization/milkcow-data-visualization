@@ -9,6 +9,8 @@ const width = 960;
 const height = 600;
 const projection = d3.geoAlbersUsa().scale(1100).translate([width / 2, height / 2]);
 const path = d3.geoPath().projection(projection);
+const MAX_YEAR = 2017;
+const PRETTY_DEC_FORMAT = ",.2~f";
 
 let currentYear = 1970;
 let selectedStateElement = null;
@@ -280,12 +282,28 @@ function showFeedback(message, isError = false) {
 
 function updateYear() {
     currentYearEl.textContent = currentYear;
+    if (currentYear >= MAX_YEAR) {
+
+        // Disable next year button
+        nextYearButton.disabled = true;
+        nextYearButton.textContent = "Game Over!";
+        
+        // Show and update the final score panel
+        const finalScorePanel = document.getElementById('final-score-panel');
+        const finalScoreElement = document.getElementById('final-score');
+        finalScorePanel.classList.remove('hidden');
+        finalScoreElement.textContent = formatDollar(getCapital());
+    }
+}
+
+function formatDollar(value) {
+    return d3.format(PRETTY_DEC_FORMAT)(value);
 }
 
 function updateBudget() {
-    budgetEl.textContent = d3.format(",.2f")(budget);
+    budgetEl.textContent = formatDollar(budget);
     const capital = getCapital();
-    capitalEl.textContent = d3.format(",.2f")(capital);
+    capitalEl.textContent = formatDollar(capital);
 }
 
 /////////////////////////////////////////////////////////////
@@ -299,14 +317,11 @@ function getCapital() {
 
 function advanceYear() {
 
-    applyPayoffs(); // Apply state payoffs
+    // Apply state payoffs
+    applyPayoffs(); 
 
-    // Increase year but cap it at 2017
-    if (currentYear < 2017) {
-        currentYear++; // Increase current year counter only if it's less than 2017
-    } else {
-        showFeedback("You've reached the en of time (2017). Cannot advance further.", true);
-    }
+    // Increment year
+    currentYear++;
 
     // Update UI
     updateInvestmentMetric();
