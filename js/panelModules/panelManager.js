@@ -122,7 +122,8 @@ function togglePanelEnlargement(panelElement, panelConfig) {
         storeAndHideOriginalContent(panelElement, panelConfig);
 
         const detailedContentArea = document.createElement('div');
-        detailedContentArea.className = 'detailed-content-area w-full h-full flex flex-col overflow-auto pt-1000'; 
+        // Added 'relative' for positioning context of the custom scrollbar
+        detailedContentArea.className = 'detailed-content-area w-full h-full flex flex-col overflow-auto pt-1000 relative'; 
         panelElement.appendChild(detailedContentArea);
 
         // Create a header container for title and close button
@@ -176,6 +177,13 @@ function initPanels() {
 
             if (panelConfig.renderSmallView) {
                 panelConfig.renderSmallView(originalContentWrapper, panelConfig.id);
+            }
+
+            // Prevent miniGraph2Panel from being expandable
+            // THIS IS TEMPOR: WHILE WORING ON THE DETAILED VIEW
+            if (panelConfig.id === 'miniGraph2Panel') {
+                panelElement.classList.remove('cursor-pointer'); // Remove pointer cursor as it's not clickable
+                return; // Skip adding the event listener for this panel
             }
 
             panelElement.classList.add('cursor-pointer'); // Indicate clickable

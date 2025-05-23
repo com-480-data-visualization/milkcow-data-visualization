@@ -10,9 +10,10 @@
     <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style_index.css">
-    <link rel="stylesheet" type="text/css" href="css/tab.css">
-    <link rel="stylesheet" type="text/css" href="css/panels.css">
+    <link rel="stylesheet" href="css/tab.css">
+    <link rel="stylesheet" href="css/panels.css">
     <link rel="stylesheet" type="text/css" href="css/sankey.css">
+    <link rel="stylesheet" href="css/customScrollbar.css">
     
     <!-- Link to favicon -->
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
@@ -322,6 +323,7 @@
     <!-- <div id="map-tooltip" class="hidden absolute bg-white text-black px-2 py-1 rounded shadow text-sm pointer-events-none z-50"></div> -->
     <div id="map-tooltip" class="custom-tooltip hidden"></div>
     <div id="gains-tooltip" class="custom-tooltip hidden"></div>
+    <div id="capital-tooltip" class="custom-tooltip hidden"></div>
 
     
     <script src="js/background.js"></script>
@@ -337,6 +339,7 @@
     <script src="js/panelModules/capitalEvolutionPanel.js"></script>
     <script src="js/panelModules/investmentPieChartPanel.js"></script>
     <script src="js/panelModules/milkRankingPanel.js"></script>
+    <script src="js/panelModules/totalCapitalChart.js"></script>
 
     <script src="js/milk_history.js"></script>
     <script src="js/dairy_price_history.js"></script>

@@ -16,6 +16,133 @@ function _endYear(startYear) {
 }
 
 //////////////////////////////////////////////////////////////////////
+// Core chart rendering function (private)
+//////////////////////////////////////////////////////////////////////
+function _renderGainsChartInternal(svgContainerId) {
+    const svgElement = d3.select('#' + svgContainerId);
+    if (!svgElement.node()) {
+        console.error(`SVG container with ID '${svgContainerId}' not found for Gains Chart.`);
+        return;
+    }
+    svgElement.selectAll("*").remove(); // Clear previous content
+
+    const rect = svgElement.node().getBoundingClientRect();
+    
+    const isDetailedView = svgContainerId.includes('detailed'); // Heuristic to check if detailed view
+    const titleHeight = isDetailedView ? 40 : 30;
+    const margin = {
+        top: titleHeight, 
+        right: isDetailedView ? 30 : 20, 
+        bottom: isDetailedView ? 50 : 40, 
+        left: isDetailedView ? 60 : 50
+    }; 
+
+    // Render Chart Title
+    svgElement.append("text")
+        .attr("x", rect.width / 2)
+        .attr("y", margin.top / 2 + (isDetailedView ? 5 : 0))
+        .attr("text-anchor", "middle")
+        .attr("class", "normal-text font-semibold text-grey-700") // Applied new classes
+        .text("Yearly Profit/Loss (%)");
+
+    let width = rect.width - margin.left - margin.right;
+    let height = rect.height - margin.top - margin.bottom;
+
+    if (width <= 0 || height <= 0) {
+        svgElement.append("text")
+            .attr("x", rect.width / 2)
+            .attr("y", rect.height / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", isDetailedView ? "14px" : "10px")
+            .text("Chart area too small.");
+        return;
+    }
+    
+    // Ensure minimum dimensions for the drawing area
+    width = Math.max(width, 100); 
+    height = Math.max(height, 80);
+
+    const g = svgElement.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const currentYearGlobal = (typeof currentYear !== 'undefined' && !isNaN(currentYear)) ? currentYear : new Date().getFullYear();
+    const initialStartYear = _startYear(); // Uses global currentYear or default
+    const initialEndYear = _endYear(initialStartYear);
+
+    const x = d3.scaleLinear()
+        .domain([initialStartYear - 1, initialEndYear + 1])
+        .range([0, width]);
+
+    const initialYears = [];
+    for (let year = initialStartYear; year <= initialEndYear; year++) {
+        initialYears.push(year);
+    }
+
+    svgElement.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', `translate(${margin.left},${margin.top + height})`)
+        .call(d3.axisBottom(x).tickValues(initialYears).tickFormat(d3.format('d')));
+
+    let init_y_domain_val;
+    if (gainsData && gainsData.length > 0) {
+        const visibleDataForInitialScale = gainsData.filter(d => d.year >= initialStartYear && d.year <= initialEndYear);
+        const maxAbsGain = visibleDataForInitialScale.length > 0 ? Math.max(...visibleDataForInitialScale.map(d => Math.abs(d.gain))) : 1;
+        init_y_domain_val = Math.max(maxAbsGain * 1.5, 1);
+    } else {
+        init_y_domain_val = 1.5; // Default if no data
+    }
+
+    const y = d3.scaleLinear()
+        .domain([-init_y_domain_val, init_y_domain_val])
+        .range([height, 0]);
+
+    svgElement.append('g')
+        .attr('class', 'y-axis')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
+        .call(d3.axisLeft(y).tickFormat(d => `${d}%`));
+
+    // Add X axis label
+    svgElement.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('x', margin.left + width / 2)
+        .attr('y', margin.top + height + margin.bottom - 10) // Adjusted y position
+        .text('Time')
+        .attr('class', 'text-sm text-gray-600');
+
+    // Add Y axis label
+    svgElement.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', `translate(${margin.left - (isDetailedView ? 40 : 30)},${margin.top + height / 2}) rotate(-90)`) // Adjusted positioning
+        .text('Profit/Loss (%)')
+        .attr('class', 'text-sm text-gray-600')
+        .style("font-size", isDetailedView ? "12px" : "10px");
+
+    g.append('line')
+        .attr('class', 'zero-line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', y(0))
+        .attr('y2', y(0))
+        .attr('stroke', '#94a3b8')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '4');
+
+    gainsChart = {
+        svg: g, 
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+        svgElement: svgElement,
+        isDetailedView: isDetailedView // Store view type
+    };
+
+    _updateXAxisScale(); // This will use gainsChart.x and gainsChart.isDetailedView if needed
+    _updateYAxisScale(); // This will use gainsChart.y and gainsChart.isDetailedView if needed
+    updateProfitHistoryChartContent(); 
+}
+
+//////////////////////////////////////////////////////////////////////
 // Update axis scales
 //////////////////////////////////////////////////////////////////////
 function _updateXAxisScale() {
@@ -29,132 +156,41 @@ function _updateXAxisScale() {
     for (let year = startYear; year <= endYear; year++) {
         years.push(year);
     }
+    
+    const tickCount = gainsChart.isDetailedView ? Math.min(years.length, 10) : Math.min(years.length, 5);
 
-    gainsChart.svgElement.select('.x-axis') // Select within the main SVG element
+    gainsChart.svgElement.select('.x-axis')
         .transition()
         .duration(500)
         .call(d3.axisBottom(gainsChart.x)
-            .tickValues(years)
+            .ticks(tickCount)
+            .tickValues(years.length <= tickCount ? years : undefined) // Show all if few, else let d3 decide based on ticks()
             .tickFormat(d3.format('d')));
 }
 
 function _updateYAxisScale() {
     if (!gainsChart || !gainsChart.y) {
-        // console.warn("_updateYAxisScale: gainsChart or gainsChart.y is not defined.");
         return;
     }
 
-    const startYear = _startYear(); // Depends on global currentYear
-
-    // Check if startYear is NaN, which can happen if currentYear is not a valid number.
+    const startYear = _startYear(); 
     if (isNaN(startYear)) {
-        console.error("_updateYAxisScale: startYear is NaN. This might be due to 'currentYear' (current value: " + currentYear + ") not being a valid number. Y-axis scaling might not work as expected.");
-        // Default to a sensible behavior or return if critical
-        // For now, let it proceed; visibleData will likely be empty, leading to a default scale.
+        console.error("_updateYAxisScale: startYear is NaN. currentYear: " + currentYear);
+        // Use a default range if currentYear is problematic
+        gainsChart.y.domain([-1.5, 1.5]);
+    } else {
+        const visibleData = gainsData.filter(d => d.year >= startYear);
+        const maxAbsGain = visibleData.length > 0 ? Math.max(...visibleData.map(d => Math.abs(d.gain))) : 1;
+        const yDomainValue = Math.max(maxAbsGain * 1.5, 0.5); 
+        gainsChart.y.domain([-yDomainValue, yDomainValue]);
     }
 
-    const visibleData = gainsData.filter(d => d.year >= startYear);
-
-    const maxAbsGain = visibleData.length > 0 ? Math.max(...visibleData.map(d => Math.abs(d.gain))) : 1;
-    const yDomainValue = Math.max(maxAbsGain * 1.5, 1); // minimum of ±1% range
-    gainsChart.y.domain([-yDomainValue, yDomainValue]);
-
-    gainsChart.svgElement.select('.y-axis') // Select within the main SVG element
+    gainsChart.svgElement.select('.y-axis')
         .transition()
         .duration(500)
-        .call(d3.axisLeft(gainsChart.y).tickFormat(d => `${d}%`));
-}
-
-//////////////////////////////////////////////////////////////////////
-// Core chart rendering function (private)
-//////////////////////////////////////////////////////////////////////
-function _renderGainsChartInternal(svgContainerId) {
-    const svgElement = d3.select('#' + svgContainerId);
-    if (!svgElement.node()) {
-        console.error(`SVG container with ID '${svgContainerId}' not found for Gains Chart.`);
-        return;
-    }
-    svgElement.selectAll("*").remove(); // Clear previous content
-
-    const rect = svgElement.node().getBoundingClientRect();
-    let availableWidth = rect.width;
-    let availableHeight = rect.height;
-
-    const margin = {top: 30, right: 30, bottom: 50, left: 60}; // Adjusted margins
-    let width = availableWidth - margin.left - margin.right;
-    let height = availableHeight - margin.top - margin.bottom;
-
-    // Ensure minimum dimensions
-    width = Math.max(width, 150); 
-    height = Math.max(height, 100);
-
-    const g = svgElement.append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const initialStartYear = _startYear();
-    const initialEndYear = _endYear(initialStartYear);
-
-    const x = d3.scaleLinear()
-        .domain([initialStartYear - 1, initialEndYear + 1])
-        .range([0, width]);
-
-    const initialYears = [];
-    for (let year = initialStartYear; year <= initialEndYear; year++) {
-        initialYears.push(year);
-    }
-
-    svgElement.append('g') // Append axes to svgElement, then transform to position
-        .attr('class', 'x-axis')
-        .attr('transform', `translate(${margin.left},${margin.top + height})`)
-        .call(d3.axisBottom(x).tickValues(initialYears).tickFormat(d3.format('d')));
-
-    const y = d3.scaleLinear()
-        .domain([-1, 1]) // Initial Y domain set to +/-1%
-        .range([height, 0]);
-
-    svgElement.append('g') // Append axes to svgElement
-        .attr('class', 'y-axis')
-        .attr('transform', `translate(${margin.left},${margin.top})`)
-        .call(d3.axisLeft(y).tickFormat(d => `${d}%`));
-
-    // Add X axis label (appended to svgElement, positioned relative to it)
-    svgElement.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('x', margin.left + width / 2)
-        .attr('y', margin.top + height + margin.bottom - 10) // Adjusted y position
-        .text('Time')
-        .attr('class', 'text-sm text-gray-600');
-
-    // Add Y axis label (appended to svgElement)
-    svgElement.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('transform', `translate(${margin.left - 35},${margin.top + height / 2}) rotate(-90)`) // Adjusted positioning
-        .text('Profit In %')
-        .attr('class', 'text-sm text-gray-600');
-
-    // Add zero line (appended to the main drawing group 'g')
-    g.append('line')
-        .attr('class', 'zero-line')
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', y(0)) // y(0) will be calculated based on the initial y scale
-        .attr('y2', y(0))
-        .attr('stroke', '#94a3b8')
-        .attr('stroke-width', 1)
-        .attr('stroke-dasharray', '4');
-
-    gainsChart = {
-        svg: g, // The main <g> element for chart content
-        x: x,
-        y: y,
-        width: width,
-        height: height,
-        svgElement: svgElement // Reference to the <svg> element itself
-    };
-
-    _updateXAxisScale();
-    _updateYAxisScale();
-    updateProfitHistoryChartContent(); // Render initial bars if any data
+        .call(d3.axisLeft(gainsChart.y)
+            .ticks(gainsChart.isDetailedView ? 8 : 4)
+            .tickFormat(d => `${d}%`));
 }
 
 //////////////////////////////////////////////////////////////////////
