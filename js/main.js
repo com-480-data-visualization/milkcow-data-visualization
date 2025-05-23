@@ -4,6 +4,8 @@
 // import { milkRankingPanelConfig } from './panelModules/milkRankingPanel.js';
 // import { capitalEvolutionPanelConfig } from './panelModules/capitalEvolutionPanel.js';
 
+window.totalCapitalHistory = []; // Initialize global array for capital history
+
 const map_svg = d3.select("#us-map");
 const width = 960;
 const height = 600;
@@ -36,12 +38,13 @@ document.addEventListener('DOMContentLoaded', function () {
     //console.log('Document is fully loaded and parsed');
     updateYear();
     updateBudget();
+    window.totalCapitalHistory.push({ year: currentYear, capital: getCapital() }); // Add initial capital
     updateInvestmentMetric();
 
     // Investor's panel init
     registerPanel(investmentPieChartPanelConfig);
     registerPanel(milkRankingPanelConfig);
-    registerPanel(capitalEvolutionPanelConfig);
+    registerPanel(capitalEvolutionPanelConfig); // capitalEvolutionPanelConfig is in scope here
     initPanels();
 
     // Populate the diary product dropdown
@@ -75,6 +78,33 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.milk_products_columns && milk_products_columns.length > 0) {
         populateProductSelect();
     }
+
+    // Add event listener for updating capitalEvolutionPanel when investments change
+    document.addEventListener('investmentsUpdated', () => {
+        // Use the capitalEvolutionPanelConfig that was in scope during DOMContentLoaded
+        const config = capitalEvolutionPanelConfig; 
+        if (!config) {
+            console.warn('capitalEvolutionPanelConfig not available for investmentsUpdated listener.');
+            return;
+        }
+        const panelId = config.id; // Should be 'capitalEvolutionPanel'
+
+        // 1. Refresh the small view's content.
+        const smallViewContainer = document.getElementById(panelId);
+        if (smallViewContainer && typeof config.renderSmallView === 'function') {
+            config.renderSmallView(smallViewContainer, panelId);
+        }
+
+        // 2. Refresh the detailed view's content if capitalEvolutionPanel is the active detailed panel.
+        // This assumes panelManager uses 'detailed-panel-content-area' as the ID for the detailed view host
+        // and sets a 'data-current-panel-id' attribute on it.
+        const detailedContentHost = document.getElementById('detailed-panel-content-area'); 
+        if (detailedContentHost && detailedContentHost.dataset.currentPanelId === panelId) {
+            if (typeof config.renderDetailedView === 'function') {
+                config.renderDetailedView(detailedContentHost, panelId);
+            }
+        }
+    });
 
     const visStateSelect = document.getElementById('visualization-state-select');
     if (visStateSelect) {
@@ -230,9 +260,6 @@ function updateMap(stateName) {
     } else {
         console.warn(`Could not find SVG path for state: ${stateName}`);
     }
-
-    // Dispatch an event to notify that investments have been updated
-    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
 function handleInvestment() {
@@ -275,6 +302,9 @@ function handleInvestment() {
 
     investmentAmountInput.max = budget + (investments[stateName] || 0);
     updateMap(stateName); // Update the map with the new investment
+    
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
 /////////////////////////////////////////////////////////////
@@ -325,24 +355,47 @@ function updateBudget() {
     budgetEl.textContent = d3.format(",.2f")(budget);
     const capital = getCapital();
     capitalEl.textContent = d3.format(",.2f")(capital);
+    // Note: We don't push to totalCapitalHistory here directly,
+    // as this function is called at various points.
+    // We'll push on initial load and after each year advancement specifically.
 }
 
 function advanceYear() {
 
-    applyPayoffs(); // Apply state payoffs
+    applyPayoffs(); // Apply state payoffs for the (old) currentYear
+
+    // REMOVED: window.totalCapitalHistory.push({ year: currentYear, capital: getCapital() }); // This was adding a point for the old year after payoffs
 
     // Increase year but cap it at 2017
     if (currentYear < 2017) {
-        currentYear++; // Increase current year counter only if it's less than 2017
+        currentYear++;
     } else {
-        showFeedback("You've reached the en of time (2017). Cannot advance further.", true);
+        // Optional: Handle game end or max year reached
+        console.log("Max year reached.");
+        // Disable next year button or show game over message
+        nextYearButton.disabled = true;
+        showFeedback("Game over: Maximum year 2017 reached.", false);
+        // return; // Possibly exit if no further actions for max year
     }
 
-    // Update UI
-    displayInvestments(); // TODO: We don't need this vis anymore
-    updateBudget();
-    updateYear();
-    // updateProfitHistoryChart(); now elsewhere
+    updateYear();   // Update year display to the new currentYear
+    updateBudget(); // Update budget display. getCapital() will now reflect the start of the new currentYear
+
+    // ADDED: Push capital for the START of the NEW currentYear
+    window.totalCapitalHistory.push({ year: currentYear, capital: getCapital() });
+
+    // Update gainsData (assuming this is for panel3/gains_chart)
+    if (window.gainsData) { // Ensure gainsData array exists
+        window.gainsData.push({ year: currentYear, gain: yearlyGainPercentage });
+    }
+
+    // Refresh panels that depend on the year or new data
+    // This might include redrawing charts, updating tables, etc.
+    // Specifics would depend on how those panels are implemented
+    // For example:
+    // if (typeof updateSomePanel === 'function') {
+    //     updateSomePanel();
+    // }
 }
 
 /**
@@ -395,5 +448,6 @@ function applyPayoffs(current_year) {
         }
     });
 */
-
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
