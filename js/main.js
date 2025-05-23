@@ -179,7 +179,7 @@ function handleStateClick(event, d) {
     }
 }
 
-const stateTooltip = document.getElementById('tooltip');
+const stateTooltip = document.getElementById('map-tooltip');
 
 function computeTotalInvestment() {
     return Object.values(investments).reduce((a, b) => a + b, 0);
@@ -191,15 +191,15 @@ function handleStateHover(event, d) {
     const totalInvestment = computeTotalInvestment();
     const relativeInvestment = totalInvestment == 0 ? 0 : (100 * investment / totalInvestment);
     stateTooltip.innerHTML = `
-        <div class="font-semibold text-sm">${d.properties.name}</div>
-        <div class="text-xs text-gray-600">Invested: $${d3.format(",.2f")(investment)} (${relativeInvestment}%)</div>
+        <div class="font-semibold text-sm text-white">${d.properties.name}</div>
+        <div class="text-xs text-white">Invested: $${d3.format(",.2f")(investment)} (${relativeInvestment}%)</div>
     `;
 }
 
 function handleTooltipMove(event) {
     // Adjust tooltip position to be slightly to the left and below the cursor
     stateTooltip.style.left = (event.pageX + 20) + "px";
-    stateTooltip.style.top = (event.pageY - 5) + "px";  // 15px 
+    stateTooltip.style.top = (event.pageY + 15) + "px";
 }
 
 function hideTooltip() {
@@ -342,7 +342,7 @@ function advanceYear() {
     displayInvestments(); // TODO: We don't need this vis anymore
     updateBudget();
     updateYear();
-    updateProfitHistoryChart();
+    // updateProfitHistoryChart(); now elsewhere
 }
 
 /**

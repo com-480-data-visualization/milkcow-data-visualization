@@ -34,9 +34,6 @@
                     🐮 The Big Snort 💸
                 </h1>
 
-                <!-- Mouse tooltip when hovering a state -->
-                <div id="tooltip" class="hidden absolute bg-white text-black px-2 py-1 rounded shadow text-sm pointer-events-none z-50"></div>
-
                 <svg id="us-map" width="100%" viewBox="0 0 960 600"></svg>
 
                 <div id="game-controls" class="panel-bgcolor text-gray-700">
@@ -110,10 +107,10 @@
                 </div>
             </div>
 
-            <div id="gains-chart-panel" class="panel-shape panel-bgcolor mt-8 p-6">
+            <!-- <div id="gains-chart-panel" class="panel-shape panel-bgcolor mt-8 p-6">
                 <h3 class="font-semibold text-gray-700 mb-6 text-center">Investment Gains Over Time</h3>
                 <div id="gains-chart"></div>
-            </div>
+            </div> -->
 
         </div>
 
@@ -232,15 +229,22 @@
         <span id="year-transition-text" class="text-8xl font-bold text-white bg-black bg-opacity-75 px-8 py-4 rounded-lg shadow-xl"></span>
     </div>
 
+    <!-- tooltip defined here, as a direct child of body -->
+    <!-- <div id="map-tooltip" class="hidden absolute bg-white text-black px-2 py-1 rounded shadow text-sm pointer-events-none z-50"></div> -->
+    <div id="map-tooltip" class="custom-tooltip hidden"></div>
+    <div id="gains-tooltip" class="custom-tooltip hidden"></div>
+
     
     <script src="js/background.js"></script>
     <script src="js/load_datasets.js"></script>
     <script src="js/tab_switching.js"></script>
     <script src="js/main.js"></script>
 
-    <script src="js/pie_chart.js"></script>
-    <script src="js/ranking.js"></script>
-    <script src="js/panelManager.js"></script>
+    <!-- investor's panel scripts -->
+    <script src="js/panelModules/pie_chart.js"></script>
+    <script src="js/panelModules/ranking.js"></script>
+    <script src="js/panelModules/gains_chart.js"></script>
+    <script src="js/panelModules/panelManager.js"></script>
     <script src="js/panelModules/capitalEvolutionPanel.js"></script>
     <script src="js/panelModules/investmentPieChartPanel.js"></script>
     <script src="js/panelModules/milkRankingPanel.js"></script>
@@ -248,7 +252,6 @@
     <script src="js/milk_history.js"></script>
     <script src="js/dairy_price_history.js"></script>
 
-    <script src="js/gains_chart.js"></script>
     <script src="js/investment_metrics.js"></script>
     <script src="js/cheese_wheel.js"></script>
     <script src="js/sankey_chart.js"></script>

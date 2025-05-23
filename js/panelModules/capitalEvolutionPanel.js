@@ -28,13 +28,25 @@ const capitalEvolutionPanelConfig = {
     enlargedTitle: 'Capital Evolution - Detailed Interactive View',
 
     renderSmallView: (containerElement, panelId) => {
-        const svgContainer = containerElement.querySelector('#capital-evolution-graph-svg'); // Use the specific SVG from HTML
+        const svgId = 'capital-evolution-graph-svg';
+        let svgContainer = containerElement.querySelector(`#${svgId}`);
+
+        if (!svgContainer) {
+            console.warn(`#${svgId} not found in containerElement for renderSmallView. Creating it for panel ${panelId}.`);
+            svgContainer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svgContainer.id = svgId;
+            svgContainer.setAttribute("width", "100%");
+            svgContainer.setAttribute("height", "100%");
+            containerElement.appendChild(svgContainer);
+        }
+
+        // Now svgContainer is guaranteed to exist.
         if (typeof panel3 !== 'undefined' && typeof panel3.renderSmallGraph === 'function') {
-            panel3.renderSmallGraph(svgContainer.id);
+            panel3.renderSmallGraph(svgId); // Pass the ID string
         } else if (typeof renderCapitalEvolutionGraph === 'function') { // Support for merged panel3
-             // renderCapitalEvolutionGraph(initialCapitalData, false, svgContainer.id); // false for not detailed
+             // renderCapitalEvolutionGraph(initialCapitalData, false, svgId); // false for not detailed
         } else {
-            renderSmallCapitalEvolutionPlaceholder(svgContainer || containerElement, panelId);
+            renderSmallCapitalEvolutionPlaceholder(svgContainer, panelId); // svgContainer is now guaranteed
         }
     },
 
@@ -74,16 +86,29 @@ const capitalEvolutionPanelConfig = {
         }
     },
     onShrink: (originalContentContainer, panelId) => {
-        const svgContainer = originalContentContainer.querySelector('#capital-evolution-graph-svg');
-        if (typeof panel3 !== 'undefined' && typeof panel3.renderSmallGraph === 'function') {
-            panel3.renderSmallGraph(svgContainer.id);
-        } else if (typeof renderCapitalEvolutionGraph === 'function') {
-            // renderCapitalEvolutionGraph(initialCapitalData, false, svgContainer.id);
-        } else {
-            renderSmallCapitalEvolutionPlaceholder(svgContainer || originalContentContainer, panelId);
+        const svgId = 'capital-evolution-graph-svg';
+        let svgContainer = originalContentContainer.querySelector(`#${svgId}`);
+
+        if (!svgContainer) {
+            console.warn(`#${svgId} not found in originalContentContainer during onShrink. Re-creating it for panel ${panelId}.`);
+            svgContainer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svgContainer.id = svgId;
+            svgContainer.setAttribute("width", "100%");
+            svgContainer.setAttribute("height", "100%");
+            originalContentContainer.appendChild(svgContainer);
         }
+
+        // Now svgContainer is guaranteed to exist.
+        if (typeof panel3 !== 'undefined' && typeof panel3.renderSmallGraph === 'function') {
+            panel3.renderSmallGraph(svgId); // Pass the ID string
+        } else if (typeof renderCapitalEvolutionGraph === 'function') {
+            // renderCapitalEvolutionGraph(initialCapitalData, false, svgId);
+        } else {
+            renderSmallCapitalEvolutionPlaceholder(svgContainer, panelId); // svgContainer is now guaranteed
+        }
+        
         // Reset styles that might have been applied for detailed view
-        if(svgContainer) {
+        if(svgContainer) { 
             svgContainer.style.flexGrow = '';
             // Potentially reset other styles if renderSmallGraph doesn't handle it
         }

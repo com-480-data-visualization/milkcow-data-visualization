@@ -116,7 +116,7 @@
 
 .custom-d3-tooltip {
     position: absolute; /* Crucial for positioning next to the cursor */
-    opacity: 0; /* Start hidden */
+    opacity: 0;
     background-color: rgba(17, 24, 39, 0.85); /* Dark background (Tailwind gray-900 at 85% opacity) */
     color: white;
     padding: 10px 15px;
@@ -126,7 +126,7 @@
     line-height: 1.4;
     pointer-events: none; /* The tooltip itself should not capture mouse events */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    transition: opacity 0.05s ease-in-out; /* Smooth fade */
+    transition: opacity 0.05s ease-in-out;
     z-index: 1070; /* High z-index to appear on top */
     white-space: nowrap; /* Keep content on one line unless <br> is used */
 }

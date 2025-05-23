@@ -232,6 +232,13 @@ canvas {
     line-height: 1.5;
 }
 
+.small-text-white {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    color: #ffffff; /* White text */
+    line-height: 1.5;
+}
+
 /* Event markers and tooltips */
 .event-marker {
     cursor: pointer;
@@ -294,4 +301,21 @@ canvas {
 /* Ensure the main tooltip is above the year animation if they overlap */
 #tooltip {
     z-index: 10000; /* Higher than year-transition-animation */
+}
+
+.custom-tooltip {
+    position: absolute; /* Crucial for positioning next to the cursor */
+    /* opacity: 0; */
+    background-color: rgba(17, 24, 39, 0.85); /* Dark background (Tailwind gray-900 at 85% opacity) */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    pointer-events: none; /* The tooltip itself should not capture mouse events */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    /* transition: opacity 0.15s ease-in-out; Smooth fade */
+    z-index: 1070; /* High z-index to appear on top */
+    white-space: nowrap; /* Keep content on one line unless <br> is used */
 }

@@ -141,7 +141,7 @@ function renderSmallPieChart(containerElement, data) {
             // Adjust position to be slightly offset from the cursor
             // and try to keep tooltip within viewport (very basic boundary detection)
             let left = x + 20;
-            let top = y + 20; // Position above cursor initially
+            let top = y + 15; // Position above cursor initially
 
             // Basic boundary check (assumes tooltip node is available and has dimensions)
             const tooltipNode = tooltip.node();
