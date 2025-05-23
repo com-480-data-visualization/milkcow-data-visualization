@@ -58,6 +58,26 @@ function setActiveTab(tab) {
         gameTabContent.classList.add('tab-left');
         howToPlayTabContent.classList.remove('tab-active', 'tab-left');
         howToPlayTabContent.classList.add('tab-right');
+        // --- Custom logic: If no state is selected, render Alabama graph ---
+        setTimeout(() => {
+            const visStateSelect = document.getElementById('visualization-state-select');
+            if (visStateSelect) {
+                const selectedValue = visStateSelect.value;
+                if (!selectedValue || selectedValue === '') {
+                    // Set Alabama as selected and render
+                    for (let i = 0; i < visStateSelect.options.length; i++) {
+                        if (visStateSelect.options[i].value === 'AL') {
+                            visStateSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    if (typeof renderMilkProductionGraph === 'function') {
+                        renderMilkProductionGraph('Alabama');
+                    }
+                }
+            }
+        }, 0);
+        // --- End custom logic ---
     } else if (tab === 'howtoplay') {
         howToPlayTabContent.classList.remove('tab-left', 'tab-right');
         howToPlayTabContent.classList.add('tab-active');
