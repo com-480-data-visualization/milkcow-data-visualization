@@ -1,0 +1,70 @@
+/* Sankey Chart Styles */
+.sankey-tooltip {
+  transition: all 0.1s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sankey-tooltip.visible {
+  opacity: 1;
+}
+
+/* Modern styling for select box hover */
+#milk-cost-sankey-year:hover {
+  background-color: #f8f9fa;
+}
+
+/* Animation for link highlight */
+.link {
+  transition: stroke-opacity 0.2s ease, filter 0.2s ease;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Custom curved links for sankey */
+.link {
+  shape-rendering: geometricPrecision;
+  overflow: visible;
+  pointer-events: stroke;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Enhanced hover effect for links */
+.link:hover {
+  cursor: pointer;
+}
+
+/* Ensure flows stay within boundaries */
+.sankey-main-group {
+  overflow: hidden;
+}
+
+/* Legend styling */
+.legend-item {
+  transition: transform 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive container */
+.sankey-chart-container {
+  position: relative;
+  transition: height 0.3s ease;
+}
+
+/* Node hover effect */
+.node rect {
+  transition: filter 0.2s ease, stroke-width 0.2s ease;
+}
+
+/* Add subtle animation when chart updates */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sankey-main-group {
+  animation: fadeIn 0.5s ease-out;
+}
