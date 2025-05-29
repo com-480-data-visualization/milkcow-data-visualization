@@ -318,7 +318,6 @@ function createCheesePatterns(defs) {
 function renderCheeseWheel(year) {
     // Clear previous visualization
     d3.select("#cheese-wheel-graph").html("");
-    d3.select("#cheese-legend").html("");
     
     // Prepare data for the selected year
     const pieData = prepareCheeseData(year);
@@ -336,14 +335,20 @@ function renderCheeseWheel(year) {
     const topMargin = 40; // Extra margin at the top for description
     const radius = Math.min(width, height) / 2 - margin;
     
+    // Create container for both chart and legend
+    const container = d3.select("#cheese-wheel-graph")
+        .style("position", "relative") // For absolute positioning of legend
+        .style("width", `${width + 250}px`) // Total width including legend
+        .style("height", `${height + topMargin + 50}px`); // Added extra height for translation
+    
     // Create SVG container with a clean white background
-    const svg = d3.select("#cheese-wheel-graph")
+    const svg = container
         .append("svg")
-        .attr("width", width)
-        .attr("height", height + topMargin + 50)
+        .attr("width", width + 250) // Added extra width for legend
+        .attr("height", height + topMargin + 50) // Added extra height for translation
         .style("margin-top", "20px")
         .append("g")
-        .attr("transform", `translate(${width / 2}, ${height / 2 + 50})`);
+        .attr("transform", `translate(${width / 2}, ${(height / 2) + 50})`); // Added 50px to move down
 
     // Add defs section for patterns
     const defs = svg.append("defs");
@@ -547,21 +552,29 @@ function renderCheeseWheel(year) {
         .text("");
     
     // Create a more visually appealing legend similar to the infographic
-    const legend = d3.select("#cheese-legend")
+    const legend = container.append("div")
+        .attr("id", "cheese-legend")
+        .style("position", "absolute") // Position absolutely
+        .style("top", "20px") // Match SVG margin-top
+        .style("right", "20px") // Add some padding from the right edge
+        .style("width", "220px") // Fixed width for legend
         .style("display", "flex")
-        .style("flex-wrap", "wrap")
-        .style("justify-content", "center")
-        .style("margin-top", "30px")
-        .style("padding", "10px");
+        .style("flex-direction", "column")
+        .style("justify-content", "flex-start")
+        .style("padding", "10px")
+        .style("background", "rgba(255, 255, 255, 0.9)") // Semi-transparent background
+        .style("border-radius", "8px") // Rounded corners
+        .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)"); // Subtle shadow
     
     pieData.forEach((item, i) => {
         const theme = getCheeseTheme(item.type);
         
         const legendItem = legend.append("div")
-            .attr("class", "flex items-center mr-4 mb-2")
+            .attr("class", "flex items-center mb-2") // Removed mr-4 since we're now in column layout
             .style("cursor", "pointer")
             .style("padding", "4px")
             .style("border-radius", "4px")
+            .style("width", "200px") // Fixed width for legend items
             .on("mouseover", function() {
                 // Highlight corresponding pie slice
                 pieSlices.filter((d) => d.data.type === item.type)
