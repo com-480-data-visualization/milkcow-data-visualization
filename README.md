@@ -1,12 +1,16 @@
 <center>
 <h1>
-<b><u>The Big Snort</u></b>
+🐮 The Big Snort 💸
 <p>An interactive game experience to visualize data and learn about dairy farming</p>
 </h1>
 </center>
 
-This project provides a fun and interactive way to visualize data related to dairy farming in the US, and learn how to discover trends in the dairy market.
-You can play the game by visiting our website at [The Big Snort](https://com-480-data-visualization.github.io/milkcow-data-visualization/). Alternatively, you can run the game locally by following the instructions below.
+This project provides a fun and interactive way to visualize data related to dairy farming in the US, and learn how to discover trends in the dairy market. Let's celebrate together "World Milk Day" on June 1st 2025 (_the day following the project handin_) by playing **The Big Snort™**!
+
+Before playing, we encourage you to go [watch our screencast on YouTube](https://www.youtube.com/watch?v=PHZS612FoJg) first, to learn about the main game mechanics.
+
+You can play our game by visiting our website at [The Big Snort™](https://com-480-data-visualization.github.io/milkcow-data-visualization/). Alternatively, you can run the game locally by following the instructions below.
+
 ## Running the Game Locally
 1. Clone the repository:
    ```bash
