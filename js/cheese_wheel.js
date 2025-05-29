@@ -398,7 +398,6 @@ function renderCheeseWheel(year) {
                 .duration(300)
                 .style('opacity', 1)
                 .attr('transform', 'scale(1.08)')
-                //.style('filter', 'drop-shadow(0px 5px 5px rgba(0,0,0,0.3))')
                 .style('stroke-width', '2px')
                 .style('stroke', '#e09900')
                 .on("end", function() {
@@ -407,21 +406,17 @@ function renderCheeseWheel(year) {
                         .transition()
                         .duration(700)
                         .attr('transform', 'scale(1.06)')
-                        //.style('filter', 'drop-shadow(0px 4px 4px rgba(0,0,0,0.25))')
                         .transition()
                         .duration(700)
                         .attr('transform', 'scale(1.08)')
-                        //.style('filter', 'drop-shadow(0px 5px 5px rgba(0,0,0,0.3))')
                         .on("end", function repeat() {
                             d3.select(this)
                                 .transition()
                                 .duration(700)
                                 .attr('transform', 'scale(1.06)')
-                                //.style('filter', 'drop-shadow(0px 4px 4px rgba(0,0,0,0.25))')
                                 .transition()
                                 .duration(700)
                                 .attr('transform', 'scale(1.08)')
-                                //.style('filter', 'drop-shadow(0px 5px 5px rgba(0,0,0,0.3))')
                                 .on("end", repeat);
                         });
                 });
@@ -449,7 +444,6 @@ function renderCheeseWheel(year) {
                 .transition()
                 .duration(300)
                 .attr('fill', d3.color(theme.color).darker(0.2))
-                .style('filter', 'drop-shadow(0px 3px 3px rgba(0,0,0,0.2))')
                 .attr('opacity', 0.9)
                 .attr('transform', `translate(0, ${sideFaceHeight - 2})`)  // Move up slightly for 3D "lift" effect
                 .on("end", function() {

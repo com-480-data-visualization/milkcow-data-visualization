@@ -152,7 +152,7 @@ function renderMilkProductionGraph(stateName) {
                 // Find the y-position on the line for this year
                 const yearData = stateData.find(sd => sd.year === d.Year);
                 const yPos = yearData 
-                    ? y(yearData.milk_produced) + margin.top + 5 // Position near the data point
+                    ? y(yearData.milk_produced) + margin.top + 50 // Position near the data point
                     : height / 2 + margin.top; // Fallback position if no data
                 
                 const tooltipWidth = tooltipNode.getBoundingClientRect().width;
@@ -330,7 +330,7 @@ function renderMilkProductionGraph(stateName) {
     // Y axis label
     svg.append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('y', -60)
+        .attr('y', -70)
         .attr('x', (-height / 2) - 15)
         .attr('dy', '1em')
         .attr('text-anchor', 'middle')
