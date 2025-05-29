@@ -11,6 +11,8 @@ Before playing, we encourage you to go [watch our screencast on YouTube](https:/
 
 You can play our game by visiting our website at [The Big Snort™](https://com-480-data-visualization.github.io/milkcow-data-visualization/). Alternatively, you can run the game locally by following the instructions below.
 
+The process book (process_book.pdf) includes a detailed description of our work and a discussion of the visualization that we implemented.
+
 ## Running the Game Locally
 1. Clone the repository:
    ```bash
