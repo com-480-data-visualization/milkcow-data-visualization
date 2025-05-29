@@ -39,12 +39,14 @@ async function initMilkCostSankey() {
         .style('gap', '1.5rem')
         .style('margin-bottom', '2rem');
     
+    /*
     header.append('h3')
         .attr('class', 'sankey-title')
         .style('font-size', '1.5rem')
         .style('font-weight', '600')
         .style('margin', '0')
         .text('Origin of the Cost of Milk');
+    */
         
     // Controls container for year selector and info
     const controls = header.append('div')

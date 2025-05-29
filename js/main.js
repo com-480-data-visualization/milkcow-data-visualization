@@ -4,6 +4,8 @@
 // import { milkRankingPanelConfig } from './panelModules/milkRankingPanel.js';
 // import { capitalEvolutionPanelConfig } from './panelModules/capitalEvolutionPanel.js';
 
+window.totalCapitalHistory = []; // Initialize global array for capital history
+
 const map_svg = d3.select("#us-map");
 const width = 960;
 const height = 600;
@@ -36,12 +38,13 @@ document.addEventListener('DOMContentLoaded', function () {
     //console.log('Document is fully loaded and parsed');
     updateYear();
     updateBudget();
+    window.totalCapitalHistory.push({ year: currentYear, capital: getCapital() }); // Add initial capital
     updateInvestmentMetric();
 
     // Investor's panel init
     registerPanel(investmentPieChartPanelConfig);
     registerPanel(milkRankingPanelConfig);
-    registerPanel(capitalEvolutionPanelConfig);
+    registerPanel(capitalEvolutionPanelConfig); // capitalEvolutionPanelConfig is in scope here
     initPanels();
 
     // Populate the diary product dropdown
@@ -75,6 +78,33 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.milk_products_columns && milk_products_columns.length > 0) {
         populateProductSelect();
     }
+
+    // Add event listener for updating capitalEvolutionPanel when investments change
+    document.addEventListener('investmentsUpdated', () => {
+        // Use the capitalEvolutionPanelConfig that was in scope during DOMContentLoaded
+        const config = capitalEvolutionPanelConfig; 
+        if (!config) {
+            console.warn('capitalEvolutionPanelConfig not available for investmentsUpdated listener.');
+            return;
+        }
+        const panelId = config.id; // Should be 'capitalEvolutionPanel'
+
+        // 1. Refresh the small view's content.
+        const smallViewContainer = document.getElementById(panelId);
+        if (smallViewContainer && typeof config.renderSmallView === 'function') {
+            config.renderSmallView(smallViewContainer, panelId);
+        }
+
+        // 2. Refresh the detailed view's content if capitalEvolutionPanel is the active detailed panel.
+        // This assumes panelManager uses 'detailed-panel-content-area' as the ID for the detailed view host
+        // and sets a 'data-current-panel-id' attribute on it.
+        const detailedContentHost = document.getElementById('detailed-panel-content-area'); 
+        if (detailedContentHost && detailedContentHost.dataset.currentPanelId === panelId) {
+            if (typeof config.renderDetailedView === 'function') {
+                config.renderDetailedView(detailedContentHost, panelId);
+            }
+        }
+    });
 
     const visStateSelect = document.getElementById('visualization-state-select');
     if (visStateSelect) {
@@ -216,6 +246,19 @@ nextYearButton.addEventListener('click', advanceYear);
 // Not needed anymore since we use grouping by "Others", so we lowered to 100
 const MIN_INVESTMENT = 100;
 
+function updateMap(stateName) {
+    const statePath = map_svg.select(`.state[data-state-name="${stateName}"]`);
+    if (statePath.node()) {
+        // maybe try to fix this with a generic function that needs to go through all states
+        // const totalInvestments = computeTotalInvestment();
+        // const investmentRatio = totalInvestments ? 0 : investments[stateName] / totalInvestments;
+        // statePath.style("fill", investmentColorScale(investmentRatio));
+        statePath.classed("invested", investments[stateName] > 0);
+    } else {
+        console.warn(`Could not find SVG path for state: ${stateName}`);
+    }
+}
+
 function handleInvestment() {
     if (!selectedStateData) return;
 
@@ -253,6 +296,9 @@ function handleInvestment() {
 
     investmentAmountInput.max = budget + (investments[stateName] || 0);
     updateMap(stateName); // Update the map with the new investment
+    
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
 
 /////////////////////////////////////////////////////////////
@@ -316,18 +362,25 @@ function getCapital() {
 }
 
 function advanceYear() {
-
-    // Apply state payoffs
-    applyPayoffs(); 
+    // Apply state payoffs - this function should update the global 'budget'
+    applyPayoffs(); // Assuming this updates the global 'budget' variable with gains/losses
 
     // Increment year
     currentYear++;
 
-    // Update UI
-    updateInvestmentMetric();
-    updateBudget();
-    updateYear();
-    // updateProfitHistoryChart(); now elsewhere
+    // Get the capital for the new year (after payoffs and year increment)
+    const currentYearCapital = getCapital(); // Uses the (presumably) updated 'budget'
+
+    // Store in history
+    window.totalCapitalHistory.push({ year: currentYear, capital: currentYearCapital });
+
+    // Update UI elements
+    updateBudget(); // Updates budgetEl and capitalEl using getCapital()
+    updateInvestmentMetric(); // Potentially uses currentYear or capital
+    updateYear(); // Updates currentYearEl and handles game over
+
+    // Notify all panels about the year change
+    document.dispatchEvent(new CustomEvent('yearChanged', { detail: currentYear }));
 }
 
 /**
@@ -380,5 +433,6 @@ function applyPayoffs(current_year) {
         }
     });
 */
-
+    // Dispatch an event to notify that investments have been updated
+    document.dispatchEvent(new CustomEvent('investmentsUpdated'));
 }
